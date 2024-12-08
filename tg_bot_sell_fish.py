@@ -171,18 +171,18 @@ def get_menu(update, context, strapi_settings=None):
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
     strapi_host, strapi_port, strapi_headers = strapi_settings
     try:
-        products_url = f'{strapi_host}{strapi_port}/api/products'
+        products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
         response = requests.get(products_url, headers=strapi_headers)
         response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    products = response.json()['data']
+    menu_parts = response.json()['data']
     keyboard = []
-    for product in products:
-        title = product['title']
-        product_id = product['documentId']
-        callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
+    for menu_part in menu_parts:
+        title = menu_part['Menu_part']
+        menu_part_id = menu_part['documentId']
+        callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
         keyboard_group = []
         keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
         keyboard.append(keyboard_group)
@@ -344,6 +344,40 @@ def get_product(update, context, strapi_settings=None):
     context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
     return 'Выбор после Продукта'
+
+
+
+def get_menu_part(update, context, strapi_settings=None):
+    query = update.callback_query
+    query.answer()
+    user_reply = query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+    try:
+        products_url = f'{strapi_host}{strapi_port}/api/products'
+        response = requests.get(products_url, headers=strapi_headers)
+        response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    products = response.json()['data']
+    keyboard = []
+    for product in products:
+        title = product['title']
+        product_id = product['documentId']
+        callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
+        keyboard_group = []
+        keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
+        keyboard.append(keyboard_group)
+    keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+    return 'Выбор после Меню'
+
+
 
 
 if __name__ == '__main__':

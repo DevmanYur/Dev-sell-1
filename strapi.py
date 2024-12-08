@@ -389,19 +389,15 @@ def f11(strapi_settings):
     cartitem_id = ''
     order_status = ''
 
-    products_url = f'{strapi_host}{strapi_port}/api/info'
+    products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
     response = requests.get(products_url, headers=strapi_headers)
     response.raise_for_status()
 
-    info_open_close = response.json()
-    Open_Close = info_open_close['data']['Open_Close']
-    Open_privetstvie = info_open_close['data']['Open_privetstvie']
-    Close_privetstvie = info_open_close['data']['Close_privetstvie']
+    pprint(response.json())
 
-    if Open_Close:
-        print(Open_privetstvie)
-    else:
-        print(Close_privetstvie)
+    menu_parts = response.json()
+
+
 
 
 if __name__ == '__main__':
