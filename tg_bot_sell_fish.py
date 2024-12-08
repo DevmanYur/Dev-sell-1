@@ -63,29 +63,55 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
 
 
 def start(update, context, strapi_settings=None):
-    text = 'Магазин'
-    tg_id = update.message.chat_id
     strapi_host, strapi_port, strapi_headers = strapi_settings
 
     try:
-        tg_id_for_strapi = f'tg_id_{tg_id}'
-        carts_url = f'{strapi_host}{strapi_port}/api/carts'
-        payload = {'data': {'tg_id': tg_id_for_strapi}}
-        response = requests.post(carts_url, headers=strapi_headers, json=payload)
+        products_url = f'{strapi_host}{strapi_port}/api/info'
+        response = requests.get(products_url, headers=strapi_headers)
         response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    cart = response.json()
-    new_cart_id = cart['data']['documentId']
-    menu_callback_data = get_callback_data(cart_id = new_cart_id, action = 'M')
-    cart_callback_data = get_callback_data(cart_id = new_cart_id, action = 'C')
-    keyboard = []
-    keyboard.append([InlineKeyboardButton("Меню", callback_data=menu_callback_data)])
-    keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(text= text, reply_markup=reply_markup)
-    return "Выбор после start"
+    info_open_close = response.json()
+    Open_Close = info_open_close['data']['Open_Close']
+    Open_privetstvie = info_open_close['data']['Open_privetstvie']
+    Close_privetstvie = info_open_close['data']['Close_privetstvie']
+
+    if Open_Close:
+        print(Open_privetstvie)
+
+        text = Open_privetstvie
+        tg_id = update.message.chat_id
+
+        try:
+            tg_id_for_strapi = f'tg_id_{tg_id}'
+            carts_url = f'{strapi_host}{strapi_port}/api/carts'
+            payload = {'data': {'tg_id': tg_id_for_strapi}}
+            response = requests.post(carts_url, headers=strapi_headers, json=payload)
+            response.raise_for_status()
+        except Exception as err:
+            logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+        cart = response.json()
+        new_cart_id = cart['data']['documentId']
+        menu_callback_data = get_callback_data(cart_id=new_cart_id, action='M')
+        cart_callback_data = get_callback_data(cart_id=new_cart_id, action='C')
+        keyboard = []
+        keyboard.append([InlineKeyboardButton("Меню", callback_data=menu_callback_data)])
+        keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        update.message.reply_text(text=text, reply_markup=reply_markup)
+        return "Выбор после start"
+
+
+
+    else:
+        print(Close_privetstvie)
+        update.message.reply_text(Close_privetstvie)
+
+
+
+
 
 
 def choice_from_start(update, context, strapi_settings=None):
