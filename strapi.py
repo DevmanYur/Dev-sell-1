@@ -379,6 +379,30 @@ def f10(strapi_settings):
 
 
 
+def f11(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    cart_id = ''
+    product_id = ''
+    action = ''
+    count = ''
+    cartitem_id = ''
+    order_status = ''
+
+    products_url = f'{strapi_host}{strapi_port}/api/info'
+    response = requests.get(products_url, headers=strapi_headers)
+    response.raise_for_status()
+
+    info_open_close = response.json()
+    Open_Close = info_open_close['data']['Open_Close']
+    Open_privetstvie = info_open_close['data']['Open_privetstvie']
+    Close_privetstvie = info_open_close['data']['Close_privetstvie']
+
+    if Open_Close:
+        print(Open_privetstvie)
+    else:
+        print(Close_privetstvie)
+
 
 if __name__ == '__main__':
     load_dotenv()
@@ -389,4 +413,4 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f10(strapi_settings)
+    f11(strapi_settings)

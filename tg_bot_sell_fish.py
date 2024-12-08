@@ -25,8 +25,8 @@ def get_database_connection(database_settings):
     return _database
 
 
-def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', cartitem_id='_', order_status='_'):
-    callback_data = f'{cart_id}&{product_id}&{action}&{count}&{cartitem_id}&{order_status}'
+def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', cartitem_id='_', order_status='_', menu_part_id ='_'):
+    callback_data = f'{cart_id}&{product_id}&{action}&{count}&{cartitem_id}&{order_status}&{menu_part_id}'
     return callback_data
 
 
@@ -78,8 +78,6 @@ def start(update, context, strapi_settings=None):
     Close_privetstvie = info_open_close['data']['Close_privetstvie']
 
     if Open_Close:
-        print(Open_privetstvie)
-
         text = Open_privetstvie
         tg_id = update.message.chat_id
 
@@ -103,20 +101,13 @@ def start(update, context, strapi_settings=None):
         update.message.reply_text(text=text, reply_markup=reply_markup)
         return "Выбор после start"
 
-
-
     else:
-        print(Close_privetstvie)
         update.message.reply_text(Close_privetstvie)
-
-
-
-
 
 
 def choice_from_start(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if  action =='M':
         return get_menu(update, context, strapi_settings=strapi_settings)
 
@@ -126,7 +117,7 @@ def choice_from_start(update, context, strapi_settings=None):
 
 def choice_from_menu(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'P':
         return get_product(update, context, strapi_settings=strapi_settings)
 
@@ -136,7 +127,7 @@ def choice_from_menu(update, context, strapi_settings=None):
 
 def choice_from_cart(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action =='Ci':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
@@ -149,7 +140,7 @@ def choice_from_cart(update, context, strapi_settings=None):
 
 def choice_from_product(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'S':
         return get_product(update, context, strapi_settings=strapi_settings)
 
@@ -176,7 +167,7 @@ def get_menu(update, context, strapi_settings=None):
     query = update.callback_query
     query.answer()
     user_reply = query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
     strapi_host, strapi_port, strapi_headers = strapi_settings
     try:
@@ -207,7 +198,7 @@ def get_cart(update, context, strapi_settings=None):
     query = update.callback_query
     query.answer()
     user_reply = query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     strapi_host, strapi_port, strapi_headers = strapi_settings
     if action == 'Ci':
         try:
@@ -274,7 +265,9 @@ def get_product(update, context, strapi_settings=None):
     query = update.callback_query
     query.answer()
     user_reply = query.data
-    cart_id, product_id, action, count, cartitem_id, order_status = user_reply.split('&')
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    print(user_reply)
+    print(len(user_reply))
     strapi_host, strapi_port, strapi_headers = strapi_settings
     if action == 'S':
         try:
@@ -283,6 +276,7 @@ def get_product(update, context, strapi_settings=None):
                        'filters[product][documentId][$eq]': f'{product_id}'}
             response = requests.get(cartitems_url, headers=strapi_headers, params=payload)
             response.raise_for_status()
+
         except Exception as err:
             logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
