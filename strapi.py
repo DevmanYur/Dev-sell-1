@@ -389,13 +389,35 @@ def f11(strapi_settings):
     cartitem_id = ''
     order_status = ''
 
-    products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
-    response = requests.get(products_url, headers=strapi_headers)
+    # products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
+    # response = requests.get(products_url, headers=strapi_headers)
+    # response.raise_for_status()
+
+    menu_part_id = 'nm2uggzzhte2cstrvzd3s41n'
+
+    payload = {'populate': 'products'}
+    menu_part_url = f'{strapi_host}{strapi_port}/api/menu-parts/{menu_part_id}/'
+    response = requests.get(menu_part_url, headers=strapi_headers, params=payload)
     response.raise_for_status()
 
     pprint(response.json())
 
     menu_parts = response.json()
+
+    '''
+    {'data': [{'Menu_part': 'Блины',
+           'createdAt': '2024-12-02T20:28:25.767Z',
+           'documentId': 'l9yk345fh56nuwsmyz8lfzg5',
+           'id': 3,
+           'publishedAt': '2024-12-08T11:08:08.048Z',
+           'updatedAt': '2024-12-08T11:08:08.032Z'},
+          {'Menu_part': 'Супы',
+           'createdAt': '2024-12-08T11:13:14.397Z',
+           'documentId': 'nm2uggzzhte2cstrvzd3s41n',
+           'id': 7,
+           'publishedAt': '2024-12-08T11:13:14.410Z',
+           'updatedAt': '2024-12-08T11:13:14.397Z'},
+    '''
 
 
 
