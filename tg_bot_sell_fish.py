@@ -211,6 +211,9 @@ def get_menu(update, context, strapi_settings=None):
     keyboard_line_3 = []
 
     if novinki == []:
+
+        simvol = '🍗 🍲 🍴 🥗 🥞 🫖
+'
         print("Новинки нет")
         for menu_part in menu_parts:
             title = menu_part['Menu_part']
