@@ -186,28 +186,31 @@ def get_menu(update, context, strapi_settings=None):
     # --- keyboard_menu-parts --- start
     strapi_host, strapi_port, strapi_headers = strapi_settings
     try:
-        payload = {'sort': 'Sortirovka'}
-        products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
-        response = requests.get(products_url, params=payload , headers=strapi_headers)
-        response.raise_for_status()
+        menu_parts_payload = {'sort': 'Sortirovka'}
+        menu_parts_url = f'{strapi_host}{strapi_port}/api/menu-parts'
+        menu_parts_response = requests.get(menu_parts_url, params=menu_parts_payload , headers=strapi_headers)
+        menu_parts_response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    menu_parts = response.json()['data']
-    keyboard_group = []
+    menu_parts = menu_parts_response.json()['data']
+
+    menu_parts_keyboard = []
+
     nov_knopka_text = '🌞новинка'
     nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
-    keyboard_group.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
+    menu_parts_keyboard.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
 
     for menu_part in menu_parts:
         title = menu_part['Menu_part']
         menu_part_id = menu_part['documentId']
         callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
-        keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
-    keyboard.append(keyboard_group)
+        menu_parts_keyboard.append(InlineKeyboardButton(title, callback_data=callback_data))
+
+    # keyboard.append(menu_parts_keyboard)
     # --- keyboard_menu-parts --- end
 
-
+    keyboard.append(menu_parts_keyboard)
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
