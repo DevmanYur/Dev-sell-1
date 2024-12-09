@@ -31,6 +31,7 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', carti
 
 
 def handle_users_reply(update, context, strapi_settings=None, database_settings =None):
+    simvol = '🍗 🍲 🍴 🥗 🥞 🫖'
     db = get_database_connection(database_settings)
     if update.message:
         user_reply = update.message.text
@@ -191,61 +192,25 @@ def get_menu(update, context, strapi_settings=None):
 
     menu_parts = response.json()['data']
 
-
-
-    try :
-        novinka_payload = {'filters[Novinka][$eq]': 'True',
-                           'populate': 'menu_part'}
-        novinka_url = f'{strapi_host}{strapi_port}/api/products'
-        novinka_response = requests.get(novinka_url, headers=strapi_headers, params=novinka_payload)
-        novinka_response.raise_for_status()
-    except Exception as err:
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-    novinki = novinka_response.json()['data']
-
     keyboard = []
     keyboard_group = []
-    keyboard_line_1 = []
-    keyboard_line_2 = []
-    keyboard_line_3 = []
 
-    if novinki == []:
+    nov_knopka_text = '🌞новинка'
+    nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
+    keyboard_group.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
 
-        simvol = '🍗 🍲 🍴 🥗 🥞 🫖'
-        print("Новинки нет")
-        for menu_part in menu_parts:
-            title = menu_part['Menu_part']
-            menu_part_id = menu_part['documentId']
-            callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
-            keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
-        keyboard.append(keyboard_group)
-        keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    for menu_part in menu_parts:
+        title = menu_part['Menu_part']
+        menu_part_id = menu_part['documentId']
+        callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
+        keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
+    keyboard.append(keyboard_group)
+    keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-        context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
-        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-        return 'Выбор после Меню'
-
-    else:
-        nov_knopka_text = '🌞новинка'
-        nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
-        keyboard_group.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
-
-        for menu_part in menu_parts:
-            title = menu_part['Menu_part']
-            menu_part_id = menu_part['documentId']
-            callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
-            keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
-        keyboard.append(keyboard_group)
-        keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
-        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-        return 'Выбор после Меню'
-
-
+    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+    return 'Выбор после Меню'
 
 
 def get_cart(update, context, strapi_settings=None):
