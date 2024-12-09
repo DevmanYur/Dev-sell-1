@@ -461,16 +461,16 @@ def f13(strapi_settings):
     novinka_url = f'{strapi_host}{strapi_port}/api/products'
     novinka_response = requests.get(novinka_url, headers=strapi_headers, params=novinka_payload)
     novinka_response.raise_for_status()
-    novinki = novinka_response.json()
+    novinki = novinka_response.json()['data']
 
     pprint(novinki)
-    if novinki['data'] == []:
+    if novinki == []:
         print("Новинки нет")
 
     else:
         knopka_text = 'Новинка'
 
-        for novinka in novinki['data']:
+        for novinka in novinki:
             menu_part = novinka['menu_part']['Menu_part']
             product_title = novinka['title']
             print( menu_part, product_title)
