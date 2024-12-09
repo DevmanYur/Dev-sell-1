@@ -181,6 +181,9 @@ def get_menu(update, context, strapi_settings=None):
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
+    keyboard = []
+
+    # --- keyboard_menu-parts --- start
     strapi_host, strapi_port, strapi_headers = strapi_settings
     try:
         payload = {'sort': 'Sortirovka'}
@@ -191,10 +194,7 @@ def get_menu(update, context, strapi_settings=None):
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     menu_parts = response.json()['data']
-
-    keyboard = []
     keyboard_group = []
-
     nov_knopka_text = '🌞новинка'
     nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
     keyboard_group.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
@@ -205,6 +205,9 @@ def get_menu(update, context, strapi_settings=None):
         callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
         keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
     keyboard.append(keyboard_group)
+    # --- keyboard_menu-parts --- end
+
+
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
