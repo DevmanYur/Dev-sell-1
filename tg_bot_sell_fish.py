@@ -49,6 +49,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         'START': partial(start, strapi_settings = strapi_settings),
         'Выбор после start': partial(choice_from_start, strapi_settings = strapi_settings),
         'Выбор после Меню': partial(choice_from_menu, strapi_settings = strapi_settings),
+        'Выбор после Меню раздел': partial(choice_from_menu_part, strapi_settings=strapi_settings),
         'Выбор после Корзины': partial(choice_from_cart, strapi_settings = strapi_settings),
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
         "Выбор после e-mail" : partial(choice_from_email, strapi_settings = strapi_settings),
@@ -125,6 +126,16 @@ def choice_from_menu(update, context, strapi_settings=None):
         return get_cart(update, context, strapi_settings=strapi_settings)
 
 
+def choice_from_menu_part(update, context, strapi_settings=None):
+    user_reply = update.callback_query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    if action == 'P':
+        return get_product(update, context, strapi_settings=strapi_settings)
+
+    if action == 'C':
+        return get_cart(update, context, strapi_settings=strapi_settings)
+
+
 def choice_from_cart(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
@@ -171,21 +182,23 @@ def get_menu(update, context, strapi_settings=None):
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
     strapi_host, strapi_port, strapi_headers = strapi_settings
     try:
+        payload = {'sort': 'Sortirovka'}
         products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
-        response = requests.get(products_url, headers=strapi_headers)
+        response = requests.get(products_url, params=payload , headers=strapi_headers)
         response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     menu_parts = response.json()['data']
     keyboard = []
+    keyboard_group = []
     for menu_part in menu_parts:
         title = menu_part['Menu_part']
         menu_part_id = menu_part['documentId']
         callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id = menu_part_id)
-        keyboard_group = []
+
         keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
-        keyboard.append(keyboard_group)
+    keyboard.append(keyboard_group)
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -328,12 +341,11 @@ def get_product(update, context, strapi_settings=None):
     count_kg = [1,2,3]
 
     keyboard = []
+    keyboard_group = []
     for count in count_kg:
         callback_data = get_callback_data(cart_id = cart_id, product_id = product_id , action = 'S', count = str(count))
-        keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(f'Добавить {count} кг', callback_data=callback_data))
-        keyboard.append(keyboard_group)
-
+        keyboard_group.append(InlineKeyboardButton(f'+ {count}', callback_data=callback_data))
+    keyboard.append(keyboard_group)
     menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
 
@@ -380,7 +392,7 @@ def get_menu_part(update, context, strapi_settings=None):
     text = menu_part['Menu_part']
     context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-    return 'Выбор после Меню'
+    return 'Выбор после Меню раздел'
 
 
 

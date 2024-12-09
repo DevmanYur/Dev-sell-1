@@ -420,6 +420,65 @@ def f11(strapi_settings):
     '''
 
 
+def f12(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    cart_id = ''
+    product_id = ''
+    action = ''
+    count = ''
+    cartitem_id = ''
+    order_status = ''
+
+    # products_url = f'{strapi_host}{strapi_port}/api/menu-parts'
+    # response = requests.get(products_url, headers=strapi_headers)
+    # response.raise_for_status()
+    # populate[categories][sort][0]=name
+
+
+
+    payload = {'sort': 'Sortirovka',
+               'populate': 'products'
+               }
+    menu_part_url = f'{strapi_host}{strapi_port}/api/menu-parts'
+    response = requests.get(menu_part_url, headers=strapi_headers, params=payload)
+    response.raise_for_status()
+
+    pprint(response.json())
+
+    menu_parts = response.json()
+
+    print(response.url)
+
+
+
+def f13(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    # filters[chef][restaurants][stars][$eq]=5
+    novinka_payload = {'filters[Novinka][$eq]': 'True',
+                       'populate': 'menu_part'}
+    novinka_url = f'{strapi_host}{strapi_port}/api/products'
+    novinka_response = requests.get(novinka_url, headers=strapi_headers, params=novinka_payload)
+    novinka_response.raise_for_status()
+    novinki = novinka_response.json()
+
+    pprint(novinki)
+    if novinki['data'] == []:
+        print("Новинки нет")
+
+    else:
+        knopka_text = 'Новинка'
+
+        for novinka in novinki['data']:
+            menu_part = novinka['menu_part']['Menu_part']
+            product_title = novinka['title']
+            print( menu_part, product_title)
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -431,4 +490,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f11(strapi_settings)
+    f13(strapi_settings)
+
