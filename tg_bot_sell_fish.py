@@ -206,6 +206,9 @@ def get_menu(update, context, strapi_settings=None):
 
     keyboard = []
     keyboard_group = []
+    keyboard_line_1 = []
+    keyboard_line_2 = []
+    keyboard_line_3 = []
 
     if novinki == []:
         print("Новинки нет")
@@ -223,7 +226,7 @@ def get_menu(update, context, strapi_settings=None):
         return 'Выбор после Меню'
 
     else:
-        nov_knopka_text = 'Новинка'
+        nov_knopka_text = '🌞новинка'
         nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
         keyboard_group.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
 
