@@ -342,7 +342,7 @@ def get_product(update, context, strapi_settings=None):
         callback_data = get_callback_data(cart_id = cart_id, product_id = product_id , action = 'S', count = str(count))
         keyboard_group.append(InlineKeyboardButton(f'+ {count}', callback_data=callback_data))
     keyboard.append(keyboard_group)
-    menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
+    
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
 
     menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
