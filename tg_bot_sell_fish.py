@@ -79,7 +79,6 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
     states_functions = {
         'START': partial(start, strapi_settings = strapi_settings),
         'Выбор после start': partial(choice_from_start, strapi_settings = strapi_settings),
-        'Выбор после Меню': partial(choice_from_menu, strapi_settings = strapi_settings),
         'Выбор после Меню раздел': partial(choice_from_menu_part, strapi_settings=strapi_settings),
         'Выбор после Корзины': partial(choice_from_cart, strapi_settings = strapi_settings),
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
@@ -124,10 +123,12 @@ def start(update, context, strapi_settings=None):
 
         cart = response.json()
         new_cart_id = cart['data']['documentId']
-        menu_callback_data = get_callback_data(cart_id=new_cart_id, action='M')
         cart_callback_data = get_callback_data(cart_id=new_cart_id, action='C')
         keyboard = []
-        keyboard.append([InlineKeyboardButton("Меню", callback_data=menu_callback_data)])
+
+        menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, new_cart_id)
+        keyboard.append(menu_parts_keyboard)
+
         keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(text=text, reply_markup=reply_markup)
@@ -140,20 +141,10 @@ def start(update, context, strapi_settings=None):
 def choice_from_start(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    if  action =='M':
-        return get_menu(update, context, strapi_settings=strapi_settings)
-
-    if action =='C':
-        return get_cart(update, context, strapi_settings=strapi_settings)
-
-
-def choice_from_menu(update, context, strapi_settings=None):
-    user_reply = update.callback_query.data
-    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    if action == 'MP':
+    if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
 
-    if action == 'C':
+    if action =='C':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
 
@@ -162,6 +153,9 @@ def choice_from_menu_part(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'P':
         return get_product(update, context, strapi_settings=strapi_settings)
+
+    if  action =='MP':
+        return get_menu_part(update, context, strapi_settings=strapi_settings)
 
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
@@ -173,8 +167,8 @@ def choice_from_cart(update, context, strapi_settings=None):
     if action =='Ci':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
-    if action =='M':
-        return get_menu(update, context, strapi_settings=strapi_settings)
+    if action == 'MP':
+        return get_menu_part(update, context, strapi_settings=strapi_settings)
 
     if action =='Or':
         return  get_order(update, context, strapi_settings=strapi_settings)
@@ -186,8 +180,8 @@ def choice_from_product(update, context, strapi_settings=None):
     if action == 'S':
         return get_product(update, context, strapi_settings=strapi_settings)
 
-    if action == 'M':
-        return get_menu(update, context, strapi_settings=strapi_settings)
+    if action == 'MP':
+        return get_menu_part(update, context, strapi_settings=strapi_settings)
 
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
@@ -203,25 +197,6 @@ def choice_from_phone(update, context, strapi_settings=None):
     text = 'Заказ оформлен'
     update.message.reply_text(text=text)
     return ''
-
-
-def get_menu(update, context, strapi_settings=None):
-    query = update.callback_query
-    query.answer()
-    user_reply = query.data
-    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
-    keyboard = []
-
-    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
-
-    keyboard.append(menu_parts_keyboard)
-    keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    context.bot.send_message(chat_id=query.message.chat_id, text="Меню",reply_markup=reply_markup)
-    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-    return 'Выбор после Меню'
 
 
 def get_cart(update, context, strapi_settings=None):
@@ -275,7 +250,11 @@ def get_cart(update, context, strapi_settings=None):
     cart_description = head_text + body_text + footer_text
     menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
     order_callback_data = get_callback_data(cart_id=cart_id, action='Or')
-    keyboard.append([InlineKeyboardButton("Меню", callback_data=menu_callback_data)])
+
+    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
+
+    keyboard.append(menu_parts_keyboard)
+
     keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data=order_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text=cart_description,reply_markup=reply_markup)
@@ -366,7 +345,10 @@ def get_product(update, context, strapi_settings=None):
     menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
 
-    keyboard.append([InlineKeyboardButton("Меню", callback_data=menu_callback_data)])
+    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
+
+    keyboard.append(menu_parts_keyboard)
+
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -403,6 +385,11 @@ def get_menu_part(update, context, strapi_settings=None):
         keyboard_group = []
         keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
         keyboard.append(keyboard_group)
+
+    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
+
+    keyboard.append(menu_parts_keyboard)
+
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
