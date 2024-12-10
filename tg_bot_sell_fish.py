@@ -32,33 +32,35 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', carti
 
 def get_menu_parts_keyboard(strapi_settings, cart_id):
     # --- keyboard_menu-parts --- start
-    strapi_host, strapi_port, strapi_headers = strapi_settings
-    try:
-        menu_parts_payload = {'sort': 'Sortirovka'}
-        menu_parts_url = f'{strapi_host}{strapi_port}/api/menu-parts'
-        menu_parts_response = requests.get(menu_parts_url, params=menu_parts_payload, headers=strapi_headers)
-        menu_parts_response.raise_for_status()
-    except Exception as err:
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    # strapi_host, strapi_port, strapi_headers = strapi_settings
 
-    menu_parts = menu_parts_response.json()['data']
+    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
 
-    menu_parts_keyboard = []
+
+    menu_parts_line_1 = []
+    menu_parts_line_2 = []
 
     nov_knopka_text = '🌞новинка'
     nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
-    menu_parts_keyboard.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
+    menu_parts_line_1.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
 
-    for menu_part in menu_parts:
+    for menu_part in data_menu_parts[0:3]:
         title = menu_part['Menu_part']
         menu_part_id = menu_part['documentId']
         callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id=menu_part_id)
-        menu_parts_keyboard.append(InlineKeyboardButton(title, callback_data=callback_data))
+        menu_parts_line_1.append(InlineKeyboardButton(title, callback_data=callback_data))
 
     # keyboard.append(menu_parts_keyboard)
     # --- keyboard_menu-parts --- end
 
-    return menu_parts_keyboard
+
+    for menu_part in data_menu_parts[3:]:
+        title = menu_part['Menu_part']
+        menu_part_id = menu_part['documentId']
+        callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id=menu_part_id)
+        menu_parts_line_2.append(InlineKeyboardButton(title, callback_data=callback_data))
+
+    return menu_parts_line_1, menu_parts_line_2
 
 def handle_users_reply(update, context, strapi_settings=None, database_settings =None):
     simvol = '🍗 🍲 🍴 🥗 🥞 🫖'
@@ -94,7 +96,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
 
 
 def start(update, context, strapi_settings=None):
-    strapi_host, strapi_port, strapi_headers = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
 
     try:
         products_url = f'{strapi_host}{strapi_port}/api/info'
@@ -126,8 +128,9 @@ def start(update, context, strapi_settings=None):
         cart_callback_data = get_callback_data(cart_id=new_cart_id, action='C')
         keyboard = []
 
-        menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, new_cart_id)
-        keyboard.append(menu_parts_keyboard)
+        menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, new_cart_id)
+        keyboard.append(menu_parts_line_1)
+        keyboard.append(menu_parts_line_2)
 
         keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -204,7 +207,7 @@ def get_cart(update, context, strapi_settings=None):
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    strapi_host, strapi_port, strapi_headers = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
     if action == 'Ci':
         try:
             cartitems_url = f'{strapi_host}{strapi_port}/api/cartitems/{cartitem_id}'
@@ -251,9 +254,9 @@ def get_cart(update, context, strapi_settings=None):
     menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
     order_callback_data = get_callback_data(cart_id=cart_id, action='Or')
 
-    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
-
-    keyboard.append(menu_parts_keyboard)
+    menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
+    keyboard.append(menu_parts_line_1)
+    keyboard.append(menu_parts_line_2)
 
     keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data=order_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -277,7 +280,7 @@ def get_product(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     print(user_reply)
     print(len(user_reply))
-    strapi_host, strapi_port, strapi_headers = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
     if action == 'S':
         try:
             cartitems_url = f'{strapi_host}{strapi_port}/api/cartitems/'
@@ -345,9 +348,9 @@ def get_product(update, context, strapi_settings=None):
     
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
 
-    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
-
-    keyboard.append(menu_parts_keyboard)
+    menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
+    keyboard.append(menu_parts_line_1)
+    keyboard.append(menu_parts_line_2)
 
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -364,7 +367,7 @@ def get_menu_part(update, context, strapi_settings=None):
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
-    strapi_host, strapi_port, strapi_headers = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
 
     try:
         payload = {'populate': 'products'}
@@ -386,9 +389,9 @@ def get_menu_part(update, context, strapi_settings=None):
         keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
         keyboard.append(keyboard_group)
 
-    menu_parts_keyboard = get_menu_parts_keyboard(strapi_settings, cart_id)
-
-    keyboard.append(menu_parts_keyboard)
+    menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
+    keyboard.append(menu_parts_line_1)
+    keyboard.append(menu_parts_line_2)
 
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -411,7 +414,19 @@ if __name__ == '__main__':
     strapi_host = os.getenv("STRAPI_HOST")
     strapi_port = os.getenv("STRAPI_PORT")
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
-    strapi_settings = [strapi_host, strapi_port, strapi_headers]
+
+    try:
+        menu_parts_payload = {'sort': 'Sortirovka'}
+        menu_parts_url = f'{strapi_host}{strapi_port}/api/menu-parts'
+        menu_parts_response = requests.get(menu_parts_url, params=menu_parts_payload, headers=strapi_headers)
+        menu_parts_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    data_menu_parts = menu_parts_response.json()['data']
+
+
+    strapi_settings = [strapi_host, strapi_port, strapi_headers, data_menu_parts]
 
     database_host = os.getenv("REDIS_HOST")
     database_port = os.getenv("REDIS_PORT")
