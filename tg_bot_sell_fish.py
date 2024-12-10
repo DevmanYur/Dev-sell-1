@@ -281,6 +281,8 @@ def get_product(update, context, strapi_settings=None):
     print(user_reply)
     print(len(user_reply))
     strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
+
+
     if action == 'S':
         try:
             cartitems_url = f'{strapi_host}{strapi_port}/api/cartitems/'
@@ -381,13 +383,24 @@ def get_menu_part(update, context, strapi_settings=None):
 
     products = menu_part['products']
     keyboard = []
-    for product in products:
-        title = product['title']
-        product_id = product['documentId']
-        callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
+
+    all_products_each = list(map(list, zip(products[::2], products[1::2])))
+    for two_products_each in all_products_each:
         keyboard_group = []
-        keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
+        for product in two_products_each:
+            title = product['title']
+            product_id = product['documentId']
+            callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
+            keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
         keyboard.append(keyboard_group)
+
+    # if len(products) % 2 > 0:
+    #     last_product_title = [products[-1]['title']]
+    #     last_product_id = [products[-1]['documentId']]
+    #     last_callback_data = get_callback_data(cart_id=cart_id, product_id=last_product_id, action='P')
+    #     keyboard.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+
+
 
     menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
     keyboard.append(menu_parts_line_1)

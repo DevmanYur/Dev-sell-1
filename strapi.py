@@ -1,5 +1,6 @@
 import html
 import json
+import logging
 import os
 from pprint import pprint
 import requests
@@ -7,7 +8,10 @@ import telegram
 from dotenv import load_dotenv
 from io import BytesIO
 
+from telegram import InlineKeyboardButton
 from telegram.ext import Updater
+
+from tg_bot_sell_fish import get_callback_data
 
 load_dotenv()
 
@@ -516,7 +520,40 @@ def f14(strapi_settings):
 
 
 
+def f15():
+    cart_id = 1
+    menu_part_id = 'xzplclrpkpmeb0u7ivdaa6bb'
+    try:
+        payload = {'populate': 'products'}
+        menu_part_url = f'{strapi_host}{strapi_port}/api/menu-parts/{menu_part_id}/'
+        response = requests.get(menu_part_url, headers=strapi_headers, params=payload)
+        response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+    menu_part = response.json()['data']
+
+    products = menu_part['products']
+    keyboard = []
+
+    all_products_each = list(map(list, zip(products[::2], products[1::2])))
+    for two_products_each in all_products_each:
+        keyboard_group = []
+        for product in two_products_each:
+            title = product['title']
+            product_id = product['documentId']
+            callback_data = get_callback_data(cart_id=cart_id, product_id=product_id, action='P')
+            keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
+        keyboard.append(keyboard_group)
+
+    if len(products)%2 > 0:
+        last_product_title = [products[-1]['title']]
+        last_product_id = [products[-1]['documentId']]
+        last_callback_data = get_callback_data(cart_id=cart_id, product_id=last_product_id, action='P')
+        keyboard.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+
+
+    pprint(keyboard)
 
 
 if __name__ == '__main__':
@@ -528,5 +565,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f14(strapi_settings)
+    f15()
 
