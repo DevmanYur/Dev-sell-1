@@ -475,6 +475,44 @@ def f13(strapi_settings):
             product_title = novinka['title']
             print( menu_part, product_title)
 
+    # >> > lst = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # >> > list(zip(lst[::2], lst[1::2]))
+
+
+
+
+def f14(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    novinka_url = f'{strapi_host}{strapi_port}/api/products'
+    novinka_response = requests.get(novinka_url, headers=strapi_headers)
+    novinka_response.raise_for_status()
+    novinki = novinka_response.json()['data']
+
+    # pprint(novinki)
+
+    novinki_11 = [10,20,30,40,50,60,70,80, 90]
+
+    print(len(novinki_11))
+
+    xxx = list(map(list, zip(novinki_11[::2], novinki_11[1::2])))
+
+    fff = []
+    for dd in xxx:
+        fff.append(dd)
+
+
+    if len(novinki_11)%2 > 0:
+        novinki_11[-1]
+        print(novinki_11[-1])
+
+        eee = [novinki_11[-1]]
+        fff.append(eee)
+
+
+
+
+    pprint(fff)
 
 
 
@@ -490,5 +528,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f13(strapi_settings)
+    f14(strapi_settings)
 
