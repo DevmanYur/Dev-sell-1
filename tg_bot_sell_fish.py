@@ -113,6 +113,10 @@ def choice_from_menu_part(update, context, strapi_settings=None):
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
+
+
+
+
 def choice_from_product(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
