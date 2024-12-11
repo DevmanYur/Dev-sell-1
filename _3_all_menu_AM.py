@@ -26,4 +26,4 @@ def get_all_menu(update, context, strapi_settings=None):
     menu_text = 'Меню'
     context.bot.send_message(chat_id=query.message.chat_id, text=menu_text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-    return 'Выбор после Корзины'
+    return 'Выбор после всего меню'
