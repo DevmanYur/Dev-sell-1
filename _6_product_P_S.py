@@ -95,12 +95,13 @@ def get_product(update, context, strapi_settings=None):
         keyboard_group.append(InlineKeyboardButton(f'+ {count}', callback_data=callback_data))
     keyboard.append(keyboard_group)
 
-    cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
+
 
     menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
     keyboard.append(menu_parts_line_1)
     keyboard.append(menu_parts_line_2)
 
+    cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
 

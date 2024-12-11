@@ -13,6 +13,7 @@ from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 from _0_functions import get_callback_data, get_menu_parts_keyboard
 from _1_start import bot_start
+from _3_all_menu_AM import get_all_menu
 from _4_part_menu_MP import get_menu_part
 from _5_cart_C_Ci import get_cart
 from _6_product_P_S import get_product
@@ -50,6 +51,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
     states_functions = {
         'START': partial(bot_start, strapi_settings = strapi_settings),
         'Выбор после start': partial(choice_from_start, strapi_settings = strapi_settings),
+        'Выбор после всего меню': partial(choice_from_all_menu, strapi_settings=strapi_settings),
         'Выбор после Меню раздел': partial(choice_from_menu_part, strapi_settings=strapi_settings),
         'Выбор после Корзины': partial(choice_from_cart, strapi_settings = strapi_settings),
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
@@ -66,11 +68,22 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
 def choice_from_start(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    if  action =='MP':
-        return get_menu_part(update, context, strapi_settings=strapi_settings)
+    if  action =='AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
 
     if action =='C':
         return get_cart(update, context, strapi_settings=strapi_settings)
+
+
+def choice_from_all_menu(update, context, strapi_settings=None):
+    user_reply = update.callback_query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    if  action =='AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
+
+    if action =='C':
+        return get_cart(update, context, strapi_settings=strapi_settings)
+
 
 
 def choice_from_menu_part(update, context, strapi_settings=None):

@@ -20,12 +20,12 @@ def bot_start(update, context, strapi_settings=None):
 
     try:
         products_url = f'{strapi_host}{strapi_port}/api/info'
-        response = requests.get(products_url, headers=strapi_headers)
-        response.raise_for_status()
+        info_response = requests.get(products_url, headers=strapi_headers)
+        info_response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    info_open_close = response.json()
+    info_open_close = info_response.json()
     Open_Close = info_open_close['data']['Open_Close']
     Open_privetstvie = info_open_close['data']['Open_privetstvie']
     Close_privetstvie = info_open_close['data']['Close_privetstvie']
