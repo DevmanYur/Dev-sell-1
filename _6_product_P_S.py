@@ -76,6 +76,8 @@ def get_product(update, context, strapi_settings=None):
             except Exception as err:
                 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+            now_quantity = count
+
         if cartitem['data'] != []:
             cartitem_doc_id = cartitem['data'][0]['documentId']
             before_quantity = cartitem['data'][0]['quantity']
