@@ -45,16 +45,10 @@ def bot_start(update, context, strapi_settings=None):
 
         cart = response.json()
         new_cart_id = cart['data']['documentId']
-        cart_callback_data = get_callback_data(cart_id=new_cart_id, action='C')
+
         keyboard = []
-
-        menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, new_cart_id)
-        keyboard.append(menu_parts_line_1)
-        keyboard.append(menu_parts_line_2)
-
         footer_keyboard = get_footer_keyboard(new_cart_id)
         keyboard.append(footer_keyboard)
-
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(text=text, reply_markup=reply_markup)
