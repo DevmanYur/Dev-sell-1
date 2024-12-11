@@ -47,6 +47,11 @@ def bot_start(update, context, strapi_settings=None):
         new_cart_id = cart['data']['documentId']
 
         keyboard = []
+
+        menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, new_cart_id)
+        keyboard.append(menu_parts_line_1)
+        keyboard.append(menu_parts_line_2)
+
         footer_keyboard = get_footer_keyboard(new_cart_id)
         keyboard.append(footer_keyboard)
 

@@ -30,7 +30,7 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
     menu_parts_line_1 = []
     menu_parts_line_2 = []
 
-    nov_knopka_text = '🌞новинка'
+    nov_knopka_text = '🌞новинки'
     nov_callback_data = get_callback_data(cart_id=cart_id, action='New')
     menu_parts_line_1.append(InlineKeyboardButton(nov_knopka_text, callback_data=nov_callback_data))
 
@@ -56,7 +56,7 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
 def get_footer_keyboard(cart_id):
     footer_keyboard = []
 
-    about_text = 'о Ладушке'
+    about_text = 'о нас'
     about_action = 'AB'
     about_callback_data = get_callback_data(cart_id=cart_id, action=about_action)
     footer_keyboard.append(InlineKeyboardButton(about_text, callback_data=about_callback_data))
@@ -72,6 +72,8 @@ def get_footer_keyboard(cart_id):
     footer_keyboard.append(InlineKeyboardButton(cart_text, callback_data=cart_callback_data))
 
     return footer_keyboard
+
+
 
 
 
