@@ -547,10 +547,14 @@ def f15():
         keyboard.append(keyboard_group)
 
     if len(products)%2 > 0:
+        keyboard_group = []
         last_product_title = [products[-1]['title']]
+        print(last_product_title)
         last_product_id = [products[-1]['documentId']]
+        print(last_product_id)
         last_callback_data = get_callback_data(cart_id=cart_id, product_id=last_product_id, action='P')
-        keyboard.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+        keyboard_group.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+        keyboard.append(keyboard_group)
 
 
     pprint(keyboard)

@@ -1,6 +1,7 @@
 import os
 import logging
 from functools import partial
+from pprint import pprint
 
 import redis
 import requests
@@ -394,11 +395,17 @@ def get_menu_part(update, context, strapi_settings=None):
             keyboard_group.append(InlineKeyboardButton(title, callback_data=callback_data))
         keyboard.append(keyboard_group)
 
-    # if len(products) % 2 > 0:
-    #     last_product_title = [products[-1]['title']]
-    #     last_product_id = [products[-1]['documentId']]
-    #     last_callback_data = get_callback_data(cart_id=cart_id, product_id=last_product_id, action='P')
-    #     keyboard.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+    if len(products)%2 > 0:
+        keyboard_group = []
+        last_product_title = products[-1]['title']
+        last_product_id = products[-1]['documentId']
+        print(last_product_id)
+        last_callback_data = get_callback_data(cart_id=cart_id, product_id=last_product_id, action='P')
+        keyboard_group.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
+        keyboard.append(keyboard_group)
+
+
+
 
 
 
@@ -407,6 +414,8 @@ def get_menu_part(update, context, strapi_settings=None):
     keyboard.append(menu_parts_line_2)
 
     keyboard.append([InlineKeyboardButton("Корзина", callback_data=cart_callback_data)])
+
+    pprint(keyboard)
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     text = menu_part['Menu_part']
