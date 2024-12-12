@@ -12,6 +12,7 @@ from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 from _0_functions import get_callback_data, get_menu_parts_keyboard
+from _10_order_Or import get_order
 from _1_start import bot_start
 from _3_all_menu_AM import get_all_menu
 from _4_part_menu_MP import get_menu_part
@@ -148,8 +149,11 @@ def choice_from_cart(update, context, strapi_settings=None):
     if action =='Ci':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
-    if action == 'MP':
-        return get_menu_part(update, context, strapi_settings=strapi_settings)
+    if action == 'AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
+
+    if action == 'Or':
+        return get_order(update, context, strapi_settings=strapi_settings)
 
 
 

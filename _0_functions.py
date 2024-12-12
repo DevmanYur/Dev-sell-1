@@ -71,6 +71,11 @@ def get_part_menu_keyboard(cart_id, cartitem_id, menu_part_title):
     menu_part_callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id=cartitem_id)
     return InlineKeyboardButton(menu_part_title, callback_data=menu_part_callback_data)
 
+def get_order_keyboard(cart_id, text):
+    order_action = 'Or'
+    order_callback_data = get_callback_data(cart_id=cart_id, action=order_action)
+    return InlineKeyboardButton(text, callback_data=order_callback_data)
+
 
 
 

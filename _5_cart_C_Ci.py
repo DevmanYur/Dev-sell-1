@@ -11,8 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_menu_parts_keyboard
-
+from _0_functions import get_callback_data, get_menu_parts_keyboard, get_all_menu_keyboard, get_order_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -70,14 +69,12 @@ def get_cart(update, context, strapi_settings=None):
     footer_text = (f'-----------\n\n'
                    f'Итого {total}')
     cart_description = head_text + body_text + footer_text
-    menu_callback_data = get_callback_data(cart_id=cart_id, action='M')
-    order_callback_data = get_callback_data(cart_id=cart_id, action='Or')
 
-    menu_parts_line_1, menu_parts_line_2 = get_menu_parts_keyboard(strapi_settings, cart_id)
-    keyboard.append(menu_parts_line_1)
-    keyboard.append(menu_parts_line_2)
+    footer_keyboard = []
+    footer_keyboard.append(get_all_menu_keyboard(cart_id, 'меню'))
+    footer_keyboard.append(get_order_keyboard(cart_id, 'Оформить заказ'))
+    keyboard.append(footer_keyboard)
 
-    keyboard.append([InlineKeyboardButton('Оформить заказ', callback_data=order_callback_data)])
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(chat_id=query.message.chat_id, text=cart_description,reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
