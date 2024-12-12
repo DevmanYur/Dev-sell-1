@@ -12,7 +12,7 @@ from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 from _0_functions import get_callback_data, get_menu_parts_keyboard
-from _10_order_Or import get_order_name
+from _10_order_Or import get_dostavka
 from _1_start import bot_start
 from _3_all_menu_AM import get_all_menu
 from _4_part_menu_MP import get_menu_part
@@ -60,6 +60,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         'Выбор после всего Новинки' : partial(choice_from_new_product, strapi_settings = strapi_settings),
         "Выбор после Имя": partial(choice_from_order_name, strapi_settings = strapi_settings),
         "Выбор после коммент" : partial(choice_from_comment, strapi_settings = strapi_settings),
+        "Выбор после Доставка" : partial(choice_from_dostavka, strapi_settings = strapi_settings),
     }
     state_handler = states_functions[user_state]
     try:
@@ -155,7 +156,7 @@ def choice_from_cart(update, context, strapi_settings=None):
         return get_all_menu(update, context, strapi_settings=strapi_settings)
 
     if action == 'Or':
-        return get_order_name(update, context, strapi_settings=strapi_settings)
+        return get_dostavka(update, context, strapi_settings=strapi_settings)
 
 
 
@@ -171,6 +172,18 @@ def choice_from_new_product(update, context, strapi_settings=None):
         return get_all_menu(update, context, strapi_settings=strapi_settings)
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
+
+
+
+def choice_from_dostavka(update, context, strapi_settings=None):
+    query = update.callback_query
+    query.answer()
+    text = 'Пришлите, пожалуйста, ваше имя'
+    context.bot.send_message(chat_id=query.message.chat_id, text=text)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+    return "Выбор после Имя"
+
+
 
 
 def choice_from_order_name(update, context, strapi_settings=None):
@@ -282,7 +295,17 @@ if __name__ == '__main__':
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     data_menu_parts = menu_parts_response.json()['data']
 
-    strapi_settings = [strapi_host, strapi_port, strapi_headers, data_menu_parts]
+
+    try:
+        dostavkas_payload = {'sort': 'Sortirovka'}
+        dostavkas_url = f'{strapi_host}{strapi_port}/api/dostavkas'
+        dostavkas_response = requests.get(dostavkas_url, params=dostavkas_payload, headers=strapi_headers)
+        dostavkas_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    dostavkas_parts = dostavkas_response.json()['data']
+
+    strapi_settings = [strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts]
 
     database_host = os.getenv("REDIS_HOST")
     database_port = os.getenv("REDIS_PORT")

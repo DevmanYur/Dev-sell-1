@@ -21,7 +21,7 @@ def get_cart(update, context, strapi_settings=None):
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
     if action == 'Ci':
         try:
             cartitems_url = f'{strapi_host}{strapi_port}/api/cartitems/{cartitem_id}'

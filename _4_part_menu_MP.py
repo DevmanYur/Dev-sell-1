@@ -24,7 +24,7 @@ def get_menu_part(update, context, strapi_settings=None):
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
 
-    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
     keyboard = []
 
     try:

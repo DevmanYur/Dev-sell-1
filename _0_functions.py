@@ -22,7 +22,7 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', carti
 
 def get_menu_parts_keyboard(strapi_settings, cart_id):
 
-    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
 
     menu_parts_line_1 = []
     menu_parts_line_2 = []

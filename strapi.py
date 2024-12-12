@@ -593,7 +593,19 @@ def f16(strapi_settings):
 
 
 
+def f17(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
 
+    try:
+        dostavkas_payload = {'sort': 'Sortirovka'}
+        dostavkas_url = f'{strapi_host}{strapi_port}/api/dostavkas'
+        dostavkas_response = requests.get(dostavkas_url, params=dostavkas_payload, headers=strapi_headers)
+        dostavkas_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    dostavkas_parts = dostavkas_response.json()['data']
+
+    pprint(dostavkas_parts)
 
 
 if __name__ == '__main__':
@@ -605,5 +617,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f16(strapi_settings)
+    f17(strapi_settings)
 

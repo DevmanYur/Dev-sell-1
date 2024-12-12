@@ -16,7 +16,7 @@ from _0_functions import get_callback_data, get_menu_parts_keyboard, get_about_k
 logger = logging.getLogger(__name__)
 
 def bot_start(update, context, strapi_settings=None):
-    strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
 
     try:
         products_url = f'{strapi_host}{strapi_port}/api/info'
