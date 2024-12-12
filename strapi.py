@@ -559,6 +559,41 @@ def f15():
     pprint(keyboard)
 
 
+
+
+def f16(strapi_settings):
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    # novinka_payload = {'filters[Novinka][$eq]': 'True',
+    #                    'populate': 'menu_part'}
+    # novinka_url = f'{strapi_host}{strapi_port}/api/products'
+    # novinka_response = requests.get(novinka_url, headers=strapi_headers, params=novinka_payload)
+    # novinka_response.raise_for_status()
+    # novinki = novinka_response.json()['data']
+    #
+    # tg_id_for_strapi = f'tg_id_{tg_id}'
+    # carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    # payload = {'data': {'tg_id': tg_id_for_strapi}}
+    # response = requests.post(carts_url, headers=strapi_headers, json=payload)
+    # response.raise_for_status()
+
+    # payload = {'data': {'tg_id': tg_id_for_strapi}}
+
+    tg_id = 'tg_id_1076073346'
+
+    payload = {'filters[tg_id]': f'{tg_id}',
+               'sort': 'id:desc',
+               'pagination[pageSize]':1}
+
+    # 'sort[0]=Description:asc&sort[1]=Name:desc'
+
+    carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    response = requests.get(carts_url, headers=strapi_headers, params=payload)
+    response.raise_for_status()
+    pprint(response.json()['data'])
+
+
+
 if __name__ == '__main__':
     load_dotenv()
 
@@ -568,5 +603,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f13(strapi_settings)
+    f16(strapi_settings)
 
