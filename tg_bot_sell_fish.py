@@ -61,6 +61,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         "Выбор после Имя": partial(choice_from_order_name, strapi_settings = strapi_settings),
         "Выбор после коммент" : partial(choice_from_comment, strapi_settings = strapi_settings),
         "Выбор после Доставка" : partial(choice_from_dostavka, strapi_settings = strapi_settings),
+        "Выбор после Время": partial(choice_from_time, strapi_settings = strapi_settings),
     }
     state_handler = states_functions[user_state]
     try:
@@ -178,12 +179,57 @@ def choice_from_new_product(update, context, strapi_settings=None):
 def choice_from_dostavka(update, context, strapi_settings=None):
     query = update.callback_query
     query.answer()
-    text = 'Пришлите, пожалуйста, ваше имя'
+    user_reply = query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
+
+    dostavka_id = order_status
+    print(dostavka_id)
+
+    dostavka_property = {'data': {'carts': {'connect': [f'{cart_id}']}}}
+    dostavka_url = f'{strapi_host}{strapi_port}/api/dostavkas/{dostavka_id}'
+    dostavka_response = requests.put(dostavka_url, headers=strapi_headers, json=dostavka_property)
+    dostavka_response.raise_for_status()
+
+
+
+
+
+    text = 'Напишите, пожалуйста, время к которому подготовить заказ'
     context.bot.send_message(chat_id=query.message.chat_id, text=text)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+    return "Выбор после Время"
+
+
+
+def choice_from_time(update, context, strapi_settings=None):
+
+    time_reply_name = update.message.text
+    chat_id_name = update.message.chat_id
+    tg_id_for_strapi = f'tg_id_{chat_id_name}'
+    past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
+                         'sort': 'id:desc',
+                         'pagination[pageSize]': 1}
+
+    past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
+    past_cart_response.raise_for_status()
+    past_cart = past_cart_response.json()['data'][0]
+    past_cart_id = past_cart['documentId']
+
+    cart_time_property = {'data': {'Time': f'{time_reply_name}'}}
+    cart_time_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
+    cart_time_response = requests.put(cart_time_url, headers=strapi_headers, json=cart_time_property)
+    cart_time_response.raise_for_status()
+
+    text = 'Пришлите, пожалуйста, ваше имя'
+    update.message.reply_text(text=text)
+
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
+
+
     return "Выбор после Имя"
-
-
 
 
 def choice_from_order_name(update, context, strapi_settings=None):
