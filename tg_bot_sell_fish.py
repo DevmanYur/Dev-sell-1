@@ -174,15 +174,62 @@ def choice_from_new_product(update, context, strapi_settings=None):
 
 
 def choice_from_order_name(update, context, strapi_settings=None):
+    user_reply_name = update.message.text
+    chat_id_name = update.message.chat_id
+    tg_id_for_strapi = f'tg_id_{chat_id_name}'
+    past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
+                         'sort': 'id:desc',
+                         'pagination[pageSize]': 1}
+
+    past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
+    past_cart_response.raise_for_status()
+    past_cart = past_cart_response.json()['data'][0]
+    past_cart_id = past_cart['documentId']
+
+    cart_name_property = {'data': {'Name': f'{user_reply_name}'}}
+    cart_name_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
+    cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
+    cart_name_response.raise_for_status()
+
     text = 'Напишите, пожалуйста, комм'
     update.message.reply_text(text=text)
 
-    # context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id-1)
     return "Выбор после коммент"
 
 def choice_from_comment(update, context, strapi_settings=None):
+
+    user_reply_name = update.message.text
+    chat_id_name = update.message.chat_id
+    tg_id_for_strapi = f'tg_id_{chat_id_name}'
+    past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
+                         'sort': 'id:desc',
+                         'pagination[pageSize]': 1}
+
+    past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
+    past_cart_response.raise_for_status()
+    past_cart = past_cart_response.json()['data'][0]
+    past_cart_id = past_cart['documentId']
+
+    cart_name_property = {'data': {'Comment': f'{user_reply_name}'}}
+    cart_name_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
+    cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
+    cart_name_response.raise_for_status()
+
+    cart = cart_name_response.json()
+
+
+    pprint(cart)
+
+
+
+
+
+
+
     text0 = 'Ваш зказа...'
     update.message.reply_text(text=text0)
 

@@ -581,16 +581,18 @@ def f16(strapi_settings):
 
     tg_id = 'tg_id_1076073346'
 
-    payload = {'filters[tg_id]': f'{tg_id}',
+    past_cart_payload = {'filters[tg_id]': f'{tg_id}',
                'sort': 'id:desc',
                'pagination[pageSize]':1}
 
-    # 'sort[0]=Description:asc&sort[1]=Name:desc'
+    past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+    past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
+    past_cart_response.raise_for_status()
+    past_cart = past_cart_response.json()['data'][0]
+    past_cart_id = past_cart['documentId']
 
-    carts_url = f'{strapi_host}{strapi_port}/api/carts'
-    response = requests.get(carts_url, headers=strapi_headers, params=payload)
-    response.raise_for_status()
-    pprint(response.json()['data'])
+
+
 
 
 
