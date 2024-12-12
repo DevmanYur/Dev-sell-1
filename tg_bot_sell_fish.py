@@ -317,8 +317,8 @@ def choice_from_comment(update, context, strapi_settings=None):
     text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
     update.message.reply_text(text=text2)
 
-    # context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
-    # context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
     return ""
 
 if __name__ == '__main__':
