@@ -214,12 +214,13 @@ def choice_from_comment(update, context, strapi_settings=None):
     past_cart = past_cart_response.json()['data'][0]
     past_cart_id = past_cart['documentId']
 
-    cart_name_property = {'data': {'Comment': f'{user_reply_name}'}}
-    cart_name_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
-    cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
-    cart_name_response.raise_for_status()
 
-    cart = cart_name_response.json()
+    cart_comment_property = {'data': {'Comment': f'{user_reply_name}'}}
+    cart_comment_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
+    cart_comment_response = requests.put(cart_comment_url, headers=strapi_headers, json=cart_comment_property)
+    cart_comment_response.raise_for_status()
+
+    cart = cart_comment_response.json()
 
 
     pprint(cart)
