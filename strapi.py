@@ -459,7 +459,6 @@ def f12(strapi_settings):
 def f13(strapi_settings):
     strapi_host, strapi_port, strapi_headers = strapi_settings
 
-    # filters[chef][restaurants][stars][$eq]=5
     novinka_payload = {'filters[Novinka][$eq]': 'True',
                        'populate': 'menu_part'}
     novinka_url = f'{strapi_host}{strapi_port}/api/products'
@@ -467,7 +466,6 @@ def f13(strapi_settings):
     novinka_response.raise_for_status()
     novinki = novinka_response.json()['data']
 
-    pprint(novinki)
     if novinki == []:
         print("Новинки нет")
 
@@ -477,7 +475,8 @@ def f13(strapi_settings):
         for novinka in novinki:
             menu_part = novinka['menu_part']['Menu_part']
             product_title = novinka['title']
-            print( menu_part, product_title)
+            product_id = novinka['documentId']
+            print( menu_part, product_title, product_id)
 
     # >> > lst = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     # >> > list(zip(lst[::2], lst[1::2]))
@@ -569,5 +568,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f15()
+    f13(strapi_settings)
 

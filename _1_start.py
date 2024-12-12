@@ -53,8 +53,8 @@ def bot_start(update, context, strapi_settings=None):
         keyboard.append(menu_parts_line_2)
 
         footer_keyboard =[]
-        footer_keyboard.append(get_about_keyboard(new_cart_id))
-        footer_keyboard.append(get_cart_keyboard(new_cart_id))
+        footer_keyboard.append(get_about_keyboard(new_cart_id, 'о нас' ))
+        footer_keyboard.append(get_cart_keyboard(new_cart_id, 'корзина'))
         keyboard.append(footer_keyboard)
 
         reply_markup = InlineKeyboardMarkup(keyboard)

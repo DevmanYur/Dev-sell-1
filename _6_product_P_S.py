@@ -41,6 +41,8 @@ def get_product(update, context, strapi_settings=None):
 
     now_cartitem = now_response.json()
 
+    print('now_cartitem', now_cartitem)
+
     if now_cartitem['data'] == []:
         now_quantity = 0
 

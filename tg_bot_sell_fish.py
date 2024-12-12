@@ -17,6 +17,7 @@ from _3_all_menu_AM import get_all_menu
 from _4_part_menu_MP import get_menu_part
 from _5_cart_C_Ci import get_cart
 from _6_product_P_S import get_product
+from _7_new_product_New import get_new_product
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         'Выбор после Меню раздел': partial(choice_from_menu_part, strapi_settings=strapi_settings),
         'Выбор после Корзины': partial(choice_from_cart, strapi_settings = strapi_settings),
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
+        'Выбор после всего Новинки' : partial(choice_from_new_product, strapi_settings = strapi_settings),
     }
     state_handler = states_functions[user_state]
     try:
@@ -70,8 +72,7 @@ def choice_from_start(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
 
     if  action =='New':
-        print('New')
-        # return get_all_menu(update, context, strapi_settings=strapi_settings)
+        return get_new_product(update, context, strapi_settings=strapi_settings)
 
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
@@ -87,9 +88,8 @@ def choice_from_start(update, context, strapi_settings=None):
 def choice_from_all_menu(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    if  action =='New':
-        print('New')
-        # return get_menu_part(update, context, strapi_settings=strapi_settings)
+    if action == 'New':
+        return get_new_product(update, context, strapi_settings=strapi_settings)
 
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
@@ -146,6 +146,19 @@ def choice_from_cart(update, context, strapi_settings=None):
         return get_menu_part(update, context, strapi_settings=strapi_settings)
 
 
+
+def choice_from_new_product(update, context, strapi_settings=None):
+    user_reply = update.callback_query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+
+    if action == 'New':
+        return get_new_product(update, context, strapi_settings=strapi_settings)
+    if action == 'P':
+        return get_product(update, context, strapi_settings=strapi_settings)
+    if action == 'AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
+    if action == 'C':
+        return get_cart(update, context, strapi_settings=strapi_settings)
 
 if __name__ == '__main__':
     logging.basicConfig(

@@ -58,8 +58,8 @@ def get_menu_part(update, context, strapi_settings=None):
         keyboard.append(keyboard_group)
 
     footer_keyboard = []
-    footer_keyboard.append(get_all_menu_keyboard(cart_id))
-    footer_keyboard.append(get_cart_keyboard(cart_id))
+    footer_keyboard.append(get_all_menu_keyboard(cart_id, 'меню'))
+    footer_keyboard.append(get_cart_keyboard(cart_id, 'корзина'))
     keyboard.append(footer_keyboard)
 
 

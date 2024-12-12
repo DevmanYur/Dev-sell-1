@@ -46,23 +46,26 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
     return menu_parts_line_1, menu_parts_line_2
 
 
-def get_about_keyboard(cart_id):
-    about_text = 'о нас'
+def get_about_keyboard(cart_id, text):
     about_action = 'AB'
     about_callback_data = get_callback_data(cart_id=cart_id, action=about_action)
-    return InlineKeyboardButton(about_text, callback_data=about_callback_data)
+    return InlineKeyboardButton(text, callback_data=about_callback_data)
 
-def get_all_menu_keyboard(cart_id):
-    all_menu_text = 'меню'
+def get_all_menu_keyboard(cart_id, text):
     all_menu_action = 'AM'
     all_menu_callback_data = get_callback_data(cart_id=cart_id, action=all_menu_action)
-    return InlineKeyboardButton(all_menu_text, callback_data=all_menu_callback_data)
+    return InlineKeyboardButton(text, callback_data=all_menu_callback_data)
 
-def get_cart_keyboard(cart_id):
-    cart_text = 'корзина'
+def get_cart_keyboard(cart_id, text):
     cart_action = 'C'
     cart_callback_data = get_callback_data(cart_id=cart_id, action=cart_action)
-    return InlineKeyboardButton(cart_text, callback_data=cart_callback_data)
+    return InlineKeyboardButton(text, callback_data=cart_callback_data)
+
+
+def get_new_product_keyboard(cart_id, text):
+    new_product_action = 'New'
+    new_product_callback_data = get_callback_data(cart_id=cart_id, action=new_product_action)
+    return InlineKeyboardButton(text, callback_data=new_product_callback_data)
 
 
 

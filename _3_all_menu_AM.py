@@ -18,7 +18,7 @@ def get_all_menu(update, context, strapi_settings=None):
     keyboard.append(menu_parts_line_2)
 
     footer_keyboard = []
-    footer_keyboard.append(get_cart_keyboard(cart_id))
+    footer_keyboard.append(get_cart_keyboard(cart_id, 'корзина'))
 
 
     reply_markup = InlineKeyboardMarkup(keyboard)
