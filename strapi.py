@@ -608,6 +608,22 @@ def f17(strapi_settings):
     pprint(dostavkas_parts)
 
 
+def f18():
+    from datetime import date
+    from datetime import datetime
+    import datetime
+
+    date_time_str = datetime.now()
+
+    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S.%f')
+    print('Дата:', date_time_obj.date())
+    print('Время:', date_time_obj.time())
+    print('Дата и время:', date_time_obj)
+
+
+    print(date_time_str)
+
+
 if __name__ == '__main__':
     load_dotenv()
 
@@ -617,5 +633,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f17(strapi_settings)
+    f18()
 
