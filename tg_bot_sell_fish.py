@@ -160,9 +160,7 @@ if __name__ == '__main__':
         menu_parts_response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
     data_menu_parts = menu_parts_response.json()['data']
-
 
     strapi_settings = [strapi_host, strapi_port, strapi_headers, data_menu_parts]
 

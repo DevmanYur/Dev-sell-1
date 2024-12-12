@@ -11,7 +11,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_menu_parts_keyboard, get_footer_keyboard
+from _0_functions import get_callback_data, get_menu_parts_keyboard, get_footer_keyboard, get_about_keyboard, \
+    get_cart_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,10 @@ def bot_start(update, context, strapi_settings=None):
         keyboard.append(menu_parts_line_1)
         keyboard.append(menu_parts_line_2)
 
-        footer_keyboard = get_footer_keyboard(new_cart_id)
+        footer_keyboard =[]
+        footer_keyboard.append(get_about_keyboard(new_cart_id))
+        footer_keyboard.append(get_cart_keyboard(new_cart_id))
+
         keyboard.append(footer_keyboard)
 
         reply_markup = InlineKeyboardMarkup(keyboard)

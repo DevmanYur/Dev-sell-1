@@ -53,7 +53,7 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
     return menu_parts_line_1, menu_parts_line_2
 
 
-def get_footer_keyboard(cart_id):
+def get_footer_keyboard(cart_id, text, action):
     footer_keyboard = []
 
     about_text = 'о нас'
@@ -73,6 +73,24 @@ def get_footer_keyboard(cart_id):
 
     return footer_keyboard
 
+
+def get_about_keyboard(cart_id):
+    about_text = 'о нас'
+    about_action = 'AB'
+    about_callback_data = get_callback_data(cart_id=cart_id, action=about_action)
+    return InlineKeyboardButton(about_text, callback_data=about_callback_data)
+
+def get_all_menu_keyboard(cart_id):
+    all_menu_text = 'меню'
+    all_menu_action = 'AM'
+    all_menu_callback_data = get_callback_data(cart_id=cart_id, action=all_menu_action)
+    return InlineKeyboardButton(all_menu_text, callback_data=all_menu_callback_data)
+
+def get_cart_keyboard(cart_id):
+    cart_text = 'корзина'
+    cart_action = 'C'
+    cart_callback_data = get_callback_data(cart_id=cart_id, action=cart_action)
+    return InlineKeyboardButton(cart_text, callback_data=cart_callback_data)
 
 
 
