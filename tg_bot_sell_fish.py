@@ -12,7 +12,7 @@ from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
 from _0_functions import get_callback_data, get_menu_parts_keyboard
-from _10_order_Or import get_order
+from _10_order_Or import get_order_name
 from _1_start import bot_start
 from _3_all_menu_AM import get_all_menu
 from _4_part_menu_MP import get_menu_part
@@ -58,6 +58,8 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         'Выбор после Корзины': partial(choice_from_cart, strapi_settings = strapi_settings),
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
         'Выбор после всего Новинки' : partial(choice_from_new_product, strapi_settings = strapi_settings),
+        "Выбор после Имя": partial(choice_from_order_name, strapi_settings = strapi_settings),
+        "Выбор после коммент" : partial(choice_from_comment, strapi_settings = strapi_settings),
     }
     state_handler = states_functions[user_state]
     try:
@@ -153,7 +155,7 @@ def choice_from_cart(update, context, strapi_settings=None):
         return get_all_menu(update, context, strapi_settings=strapi_settings)
 
     if action == 'Or':
-        return get_order(update, context, strapi_settings=strapi_settings)
+        return get_order_name(update, context, strapi_settings=strapi_settings)
 
 
 
@@ -169,6 +171,34 @@ def choice_from_new_product(update, context, strapi_settings=None):
         return get_all_menu(update, context, strapi_settings=strapi_settings)
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
+
+
+def choice_from_order_name(update, context, strapi_settings=None):
+    text = 'Напишите, пожалуйста, комм'
+    update.message.reply_text(text=text)
+
+    # context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id-1)
+    return "Выбор после коммент"
+
+def choice_from_comment(update, context, strapi_settings=None):
+    text0 = 'Ваш зказа...'
+    update.message.reply_text(text=text0)
+
+    text1 = (f'Скопируйте сообщение, которое выше\n'
+             f'и отправьте его в чат\n'
+             f'\n'
+             f'Спасибо!\n'
+             f'Ваша Ладушка!💕')
+    update.message.reply_text(text=text1)
+
+    text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
+    update.message.reply_text(text=text2)
+
+    # context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+    # context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
+    return ""
 
 if __name__ == '__main__':
     logging.basicConfig(
