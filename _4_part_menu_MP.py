@@ -23,12 +23,9 @@ def get_menu_part(update, context, strapi_settings=None):
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-    cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
+
     strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
-
     keyboard = []
-
-
 
     try:
         payload = {'populate': 'products'}

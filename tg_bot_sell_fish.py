@@ -115,6 +115,9 @@ def choice_from_menu_part(update, context, strapi_settings=None):
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
 
+    if action == 'AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
+
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
