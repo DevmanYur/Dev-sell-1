@@ -67,6 +67,10 @@ def get_new_product_keyboard(cart_id, text):
     new_product_callback_data = get_callback_data(cart_id=cart_id, action=new_product_action)
     return InlineKeyboardButton(text, callback_data=new_product_callback_data)
 
+def get_part_menu_keyboard(cart_id, cartitem_id, menu_part_title):
+    menu_part_callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id=cartitem_id)
+    return InlineKeyboardButton(menu_part_title, callback_data=menu_part_callback_data)
+
 
 
 

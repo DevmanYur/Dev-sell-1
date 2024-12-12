@@ -11,7 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_all_menu_keyboard, get_cart_keyboard
+from _0_functions import get_callback_data, get_all_menu_keyboard, get_cart_keyboard, get_part_menu_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,10 @@ def get_menu_part(update, context, strapi_settings=None):
     cart_callback_data = get_callback_data(cart_id=cart_id, action='C')
     strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
 
+    keyboard = []
+
+
+
     try:
         payload = {'populate': 'products'}
         menu_part_url = f'{strapi_host}{strapi_port}/api/menu-parts/{menu_part_id}/'
@@ -36,8 +40,15 @@ def get_menu_part(update, context, strapi_settings=None):
 
     menu_part = response.json()['data']
 
+    pprint(menu_part)
+
     products = menu_part['products']
-    keyboard = []
+
+    line_new_product_keyboard = []
+    menu_part_title = menu_part['Menu_part']
+    line_new_product_keyboard.append(get_part_menu_keyboard(cart_id, cartitem_id, menu_part_title))
+    keyboard.append(line_new_product_keyboard)
+
 
     all_products_each = list(map(list, zip(products[::2], products[1::2])))
     for two_products_each in all_products_each:
@@ -65,7 +76,7 @@ def get_menu_part(update, context, strapi_settings=None):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    text = menu_part['Menu_part']
+    text = menu_part['Emoji']
     context.bot.send_message(chat_id=query.message.chat_id, text=text,reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
     return 'Выбор после Меню раздел'
