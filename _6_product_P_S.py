@@ -11,7 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data
+from _0_functions import get_callback_data, get_all_menu_keyboard, get_cart_keyboard
 from _1_start import bot_start
 from _4_part_menu_MP import get_menu_part
 from _5_cart_C_Ci import get_cart
@@ -27,7 +27,7 @@ def get_product(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
 
-
+    text = 'test'
     # Now
     try:
         now_cartitems_url = f'{strapi_host}{strapi_port}/api/cartitems/'
@@ -154,6 +154,10 @@ def get_product(update, context, strapi_settings=None):
 
 
 
+    footer_keyboard = []
+    footer_keyboard.append(get_all_menu_keyboard(cart_id, 'меню'))
+    footer_keyboard.append(get_cart_keyboard(cart_id, 'корзина'))
+    keyboard.append(footer_keyboard)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
