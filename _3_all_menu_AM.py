@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from _0_functions import get_menu_parts_keyboard, get_footer_keyboard, get_callback_data
+from _0_functions import get_menu_parts_keyboard, get_cart_keyboard
 
 
 def get_all_menu(update, context, strapi_settings=None):
@@ -17,8 +17,8 @@ def get_all_menu(update, context, strapi_settings=None):
     keyboard.append(menu_parts_line_1)
     keyboard.append(menu_parts_line_2)
 
-    footer_keyboard = get_footer_keyboard(cart_id)
-    keyboard.append(footer_keyboard)
+    footer_keyboard = []
+    footer_keyboard.append(get_cart_keyboard(cart_id))
 
 
     reply_markup = InlineKeyboardMarkup(keyboard)

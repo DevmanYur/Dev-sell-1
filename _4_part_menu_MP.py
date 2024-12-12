@@ -11,7 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_menu_parts_keyboard, get_footer_keyboard
+from _0_functions import get_callback_data, get_all_menu_keyboard, get_cart_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,9 @@ def get_menu_part(update, context, strapi_settings=None):
         keyboard_group.append(InlineKeyboardButton(last_product_title, callback_data=last_callback_data))
         keyboard.append(keyboard_group)
 
-
-
-    footer_keyboard = get_footer_keyboard(cart_id)
+    footer_keyboard = []
+    footer_keyboard.append(get_all_menu_keyboard(cart_id))
+    footer_keyboard.append(get_cart_keyboard(cart_id))
     keyboard.append(footer_keyboard)
 
 

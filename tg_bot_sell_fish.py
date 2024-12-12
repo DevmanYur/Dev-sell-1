@@ -68,12 +68,17 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
 def choice_from_start(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+
+    if  action =='New':
+        print('New')
+        # return get_all_menu(update, context, strapi_settings=strapi_settings)
+
+    if  action =='MP':
+        return get_menu_part(update, context, strapi_settings=strapi_settings)
+
     if  action =='AB':
         print('AB')
         # return get_all_menu(update, context, strapi_settings=strapi_settings)
-
-    if  action =='AM':
-        return get_all_menu(update, context, strapi_settings=strapi_settings)
 
     if action =='C':
         return get_cart(update, context, strapi_settings=strapi_settings)

@@ -21,11 +21,8 @@ def get_callback_data(cart_id='_', product_id ='_', action='_', count='_', carti
 
 
 def get_menu_parts_keyboard(strapi_settings, cart_id):
-    # --- keyboard_menu-parts --- start
-    # strapi_host, strapi_port, strapi_headers = strapi_settings
 
     strapi_host, strapi_port, strapi_headers, data_menu_parts = strapi_settings
-
 
     menu_parts_line_1 = []
     menu_parts_line_2 = []
@@ -40,10 +37,6 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
         callback_data = get_callback_data(cart_id=cart_id, action='MP', menu_part_id=menu_part_id)
         menu_parts_line_1.append(InlineKeyboardButton(title, callback_data=callback_data))
 
-    # keyboard.append(menu_parts_keyboard)
-    # --- keyboard_menu-parts --- end
-
-
     for menu_part in data_menu_parts[3:]:
         title = menu_part['Menu_part']
         menu_part_id = menu_part['documentId']
@@ -51,27 +44,6 @@ def get_menu_parts_keyboard(strapi_settings, cart_id):
         menu_parts_line_2.append(InlineKeyboardButton(title, callback_data=callback_data))
 
     return menu_parts_line_1, menu_parts_line_2
-
-
-def get_footer_keyboard(cart_id, text, action):
-    footer_keyboard = []
-
-    about_text = 'о нас'
-    about_action = 'AB'
-    about_callback_data = get_callback_data(cart_id=cart_id, action=about_action)
-    footer_keyboard.append(InlineKeyboardButton(about_text, callback_data=about_callback_data))
-
-    all_menu_text = 'меню'
-    all_menu_action = 'AM'
-    all_menu_callback_data = get_callback_data(cart_id=cart_id, action=all_menu_action)
-    footer_keyboard.append(InlineKeyboardButton(all_menu_text, callback_data=all_menu_callback_data))
-
-    cart_text = 'корзина'
-    cart_action = 'C'
-    cart_callback_data = get_callback_data(cart_id=cart_id, action=cart_action)
-    footer_keyboard.append(InlineKeyboardButton(cart_text, callback_data=cart_callback_data))
-
-    return footer_keyboard
 
 
 def get_about_keyboard(cart_id):

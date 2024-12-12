@@ -11,7 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_menu_parts_keyboard, get_footer_keyboard
+from _0_functions import get_callback_data
 from _1_start import bot_start
 from _4_part_menu_MP import get_menu_part
 from _5_cart_C_Ci import get_cart
@@ -150,8 +150,7 @@ def get_product(update, context, strapi_settings=None):
     keyboard.append([InlineKeyboardButton(f'посмотреть другие {menu_part_title}', callback_data=menu_part_callback_data)])
 
 
-    footer_keyboard = get_footer_keyboard(cart_id)
-    keyboard.append(footer_keyboard)
+
 
 
     reply_markup = InlineKeyboardMarkup(keyboard)
