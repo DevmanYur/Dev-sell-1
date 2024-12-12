@@ -131,6 +131,9 @@ def choice_from_product(update, context, strapi_settings=None):
     if action == 'S':
         return get_product(update, context, strapi_settings=strapi_settings)
 
+    if action == 'AM':
+        return get_all_menu(update, context, strapi_settings=strapi_settings)
+
     if action == 'MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
 

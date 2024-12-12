@@ -40,9 +40,13 @@ def get_cart(update, context, strapi_settings=None):
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     cart = response.json()
+
+    pprint(cart)
+    zakaz_nomer = cart['data']['id']
     total = 0
-    head_text = (f'Моя корзина:\n'
-                 f'-----------\n\n')
+    head_text = (f'-----------\n'
+                 f'Заказ номер - *** {zakaz_nomer} ***\n'
+                 f'-----------\n')
     body_text = ''
 
     keyboard = []
@@ -54,7 +58,7 @@ def get_cart(update, context, strapi_settings=None):
         pre_total = price * quantity
         total = total + pre_total
         text_product = (f'● {title}\n'
-                        f'Цена за кг: {price}\n'
+                        f'Цена за ед.: {price}\n'
                         f'Кол-во: {quantity}\n'
                         f'Подитог: {pre_total}\n\n')
         body_text = body_text + text_product
