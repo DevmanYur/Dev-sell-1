@@ -31,7 +31,7 @@ def get_cart(update, context, strapi_settings=None):
             logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     try:
-        payload = {'populate[cartitems][populate][0]': 'product'}
+        payload = {'populate[cartitems][populate][product][populate][0]': 'menu_part'}
         carts_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}/'
         response = requests.get(carts_url, headers=strapi_headers, params=payload)
         response.raise_for_status()
@@ -44,19 +44,20 @@ def get_cart(update, context, strapi_settings=None):
     zakaz_nomer = cart['data']['id']
     total = 0
     head_text = (f'-----------\n'
-                 f'Заказ номер - *** {zakaz_nomer} ***\n'
+                 f'Моя карзина\n'
                  f'-----------\n')
     body_text = ''
 
     keyboard = []
     for cartitem in cart['data']['cartitems']:
         cartitem_id = cartitem['documentId']
+        edin_cis_menu_part = cartitem['product']['menu_part']['Edinstvennoe_cislo']
         title = cartitem['product']['title']
         price = cartitem['product']['price']
         quantity = cartitem['quantity']
         pre_total = price * quantity
         total = total + pre_total
-        text_product = (f'● {title}\n'
+        text_product = (f'● {edin_cis_menu_part} - {title}\n'
                         f'Цена за ед.: {price}\n'
                         f'Кол-во: {quantity}\n'
                         f'Подитог: {pre_total}\n\n')

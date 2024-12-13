@@ -291,9 +291,9 @@ def f9():
     strapi_tokenq = os.getenv("STRAPI_TOKEN")
     headers = {'Authorization': f'Bearer {strapi_tokenq}'}
 
-    cart_id = 'ljpwh8c237ohammcj7uam7dg'
+    cart_id = 'c1frbh03qc6uf7li4obgx5lr'
 
-    product_id = 'zj4b4o2vs8dyk6k5xcl88dec'
+    # product_id = 'zj4b4o2vs8dyk6k5xcl88dec'
 
     response = requests.get(f'http://localhost:1337/api/cartitems?'
                             f'populate=*'
@@ -624,6 +624,37 @@ def f18():
     print(date_time_str)
 
 
+def f19(strapi_settings):
+    cart_id = 'c1frbh03qc6uf7li4obgx5lr'
+
+    strapi_host, strapi_port, strapi_headers = strapi_settings
+
+    try:
+        # payload = {'populate[cartitems][populate][0]': 'product',}
+        payload = {'populate[cartitems][populate][product][populate][0]': 'menu_part'}
+        carts_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}/'
+        response = requests.get(carts_url, headers=strapi_headers, params=payload)
+        response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    cart = response.json()
+
+    pprint(cart)
+
+    for cartitem in cart['data']['cartitems']:
+        cartitem_id = cartitem['documentId']
+        title = cartitem['product']['title']
+        price = cartitem['product']['price']
+        edin_cis_menu_part = cartitem['product']['menu_part']['Edinstvennoe_cislo']
+
+        print(title)
+        print(edin_cis_menu_part)
+
+        print()
+
+
+
 if __name__ == '__main__':
     load_dotenv()
 
@@ -633,5 +664,5 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f18()
+    f19(strapi_settings)
 
