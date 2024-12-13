@@ -44,7 +44,7 @@ def get_cart(update, context, strapi_settings=None):
     zakaz_nomer = cart['data']['id']
     total = 0
     head_text = (f'-----------\n'
-                 f'Моя карзина\n'
+                 f'Моя корзина\n'
                  f'-----------\n')
     body_text = ''
 
@@ -58,9 +58,9 @@ def get_cart(update, context, strapi_settings=None):
         pre_total = price * quantity
         total = total + pre_total
         text_product = (f'● {edin_cis_menu_part} - {title}\n'
-                        f'Цена за ед.: {price}\n'
-                        f'Кол-во: {quantity}\n'
-                        f'Подитог: {pre_total}\n\n')
+                        f'цена : {price} руб.\n'
+                        f'кол-во : {quantity}\n'
+                        f'подитог : {pre_total} руб.\n\n')
         body_text = body_text + text_product
 
         callback_data = get_callback_data(cart_id=cart_id, action='Ci', cartitem_id=cartitem_id)
@@ -68,7 +68,7 @@ def get_cart(update, context, strapi_settings=None):
         keyboard_group.append(InlineKeyboardButton(f'Удалить {title}', callback_data=callback_data))
         keyboard.append(keyboard_group)
     footer_text = (f'-----------\n\n'
-                   f'Итого {total}')
+                   f'Итого : {total} руб.')
     cart_description = head_text + body_text + footer_text
 
     footer_keyboard = []

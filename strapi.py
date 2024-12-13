@@ -631,7 +631,10 @@ def f19(strapi_settings):
 
     try:
         # payload = {'populate[cartitems][populate][0]': 'product',}
-        payload = {'populate[cartitems][populate][product][populate][0]': 'menu_part'}
+        payload = {'populate[cartitems][populate][product][populate][0]': 'menu_part',
+                   'populate': 'dostavka',
+
+                   }
         carts_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}/'
         response = requests.get(carts_url, headers=strapi_headers, params=payload)
         response.raise_for_status()

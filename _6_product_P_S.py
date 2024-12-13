@@ -121,7 +121,7 @@ def get_product(update, context, strapi_settings=None):
             f'------------------------------------\n'
             f'{title}\n'
             f'\n'
-            f'цена : {price}р.\n'
+            f'цена : {price} руб.\n'
             f'описание : {description}\n'
             f'порция : {porciya}\n'
             f'------------------------------------\n'
