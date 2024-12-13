@@ -1,7 +1,6 @@
 import os
 import logging
 from functools import partial
-from pprint import pprint
 import datetime
 
 import redis
@@ -12,7 +11,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Filters, Updater
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler
 
-from _0_functions import get_callback_data, get_menu_parts_keyboard
+from _0_functions import get_callback_data
 from _10_order_Or import get_dostavka
 from _1_start import bot_start
 from _3_all_menu_AM import get_all_menu
@@ -36,7 +35,6 @@ def get_database_connection(database_settings):
 
 
 def handle_users_reply(update, context, strapi_settings=None, database_settings =None):
-    simvol = '🍗 🍲 🍴 🥗 🥞 🫖'
     db = get_database_connection(database_settings)
     if update.message:
         user_reply = update.message.text
@@ -46,7 +44,6 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         chat_id = update.callback_query.message.chat_id
     else:
         return
-
     if user_reply == '/start':
         user_state = 'START'
     else:
@@ -73,21 +70,15 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-
 def choice_from_start(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-
     if  action =='New':
         return get_new_product(update, context, strapi_settings=strapi_settings)
-
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
-
     if  action =='AB':
-        print('AB')
-        # return get_all_menu(update, context, strapi_settings=strapi_settings)
-
+        return 'AB'
     if action =='C':
         return get_cart(update, context, strapi_settings=strapi_settings)
 
@@ -97,20 +88,14 @@ def choice_from_all_menu(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'New':
         return get_new_product(update, context, strapi_settings=strapi_settings)
-
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
-
     if action == 'AB':
-        print('AB')
-        # return get_all_menu(update, context, strapi_settings=strapi_settings)
-
+        return 'AB'
     if action == 'AM':
         return get_all_menu(update, context, strapi_settings=strapi_settings)
-
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
-
 
 
 def choice_from_menu_part(update, context, strapi_settings=None):
@@ -118,18 +103,12 @@ def choice_from_menu_part(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'P':
         return get_product(update, context, strapi_settings=strapi_settings)
-
     if  action =='MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
-
     if action == 'AM':
         return get_all_menu(update, context, strapi_settings=strapi_settings)
-
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
-
-
-
 
 
 def choice_from_product(update, context, strapi_settings=None):
@@ -137,16 +116,12 @@ def choice_from_product(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action == 'S':
         return get_product(update, context, strapi_settings=strapi_settings)
-
     if action == 'AM':
         return get_all_menu(update, context, strapi_settings=strapi_settings)
-
     if action == 'MP':
         return get_menu_part(update, context, strapi_settings=strapi_settings)
-
     if action == 'C':
         return get_cart(update, context, strapi_settings=strapi_settings)
-
 
 
 def choice_from_cart(update, context, strapi_settings=None):
@@ -154,19 +129,15 @@ def choice_from_cart(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     if action =='Ci':
         return get_cart(update, context, strapi_settings=strapi_settings)
-
     if action == 'AM':
         return get_all_menu(update, context, strapi_settings=strapi_settings)
-
     if action == 'Or':
         return get_dostavka(update, context, strapi_settings=strapi_settings)
-
 
 
 def choice_from_new_product(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-
     if action == 'New':
         return get_new_product(update, context, strapi_settings=strapi_settings)
     if action == 'P':
@@ -177,22 +148,17 @@ def choice_from_new_product(update, context, strapi_settings=None):
         return get_cart(update, context, strapi_settings=strapi_settings)
 
 
-
 def choice_from_dostavka(update, context, strapi_settings=None):
     query = update.callback_query
     query.answer()
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
-
-
     dostavka_id = order_status
     dostavka_property = {'data': {'carts': {'connect': [f'{cart_id}']}}}
     dostavka_url = f'{strapi_host}{strapi_port}/api/dostavkas/{dostavka_id}'
     dostavka_response = requests.put(dostavka_url, headers=strapi_headers, json=dostavka_property)
     dostavka_response.raise_for_status()
-
-
     ##### zakaz_nomer_data - start #####
     current_time = datetime.datetime.now()
     year = current_time.year
@@ -209,7 +175,6 @@ def choice_from_dostavka(update, context, strapi_settings=None):
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     dennomerint_cart = dennomerint_response.json()
-
     if dennomerint_cart['data']:
         dennomerint = dennomerint_cart['meta']['pagination']['total']
         zakaz_nomer_data = f'{date_for_post} - {dennomerint}'
@@ -220,32 +185,25 @@ def choice_from_dostavka(update, context, strapi_settings=None):
                                                  json=zakaz_nomer_data_property)
         zakaz_nomer_data_response.raise_for_status()
     ###### zakaz_nomer_data - end #####
-
     keyboard = []
-
     da_callback_data = get_callback_data(cart_id=cart_id, action='Da')
     keyboard.append([InlineKeyboardButton('Добавить время получения, имя, контакты ...', callback_data=da_callback_data)])
-
     net_callback_data = get_callback_data(cart_id=cart_id, action='Net')
     keyboard.append([InlineKeyboardButton('Не добавлять', callback_data=net_callback_data)])
-
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     menu_text = '💬'
     context.bot.send_message(chat_id=query.message.chat_id, text=menu_text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
-
     return "Выбор после да нет"
+
 
 def choice_from_da_net(update, context, strapi_settings=None):
     user_reply = update.callback_query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
-
     if action == 'Da':
         return get_coomment_da(update, context, strapi_settings=strapi_settings)
     if action == 'Net':
         return get_coomment_net_choice_from_comment_2(update, context, strapi_settings=strapi_settings)
-
 
 
 def get_coomment_da(update, context, strapi_settings=None):
@@ -254,41 +212,32 @@ def get_coomment_da(update, context, strapi_settings=None):
     user_reply = query.data
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
-
     text = 'Напишите, пожалуйста, время к которому подготовить заказ'
     context.bot.send_message(chat_id=query.message.chat_id, text=text)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
     return "Выбор после Время"
 
 
-
 def choice_from_time(update, context, strapi_settings=None):
-
     time_reply_name = update.message.text
     chat_id_name = update.message.chat_id
     tg_id_for_strapi = f'tg_id_{chat_id_name}'
     past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
                          'sort': 'id:desc',
                          'pagination[pageSize]': 1}
-
     past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
     past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
     past_cart_response.raise_for_status()
     past_cart = past_cart_response.json()['data'][0]
     past_cart_id = past_cart['documentId']
-
     cart_time_property = {'data': {'Time': f'{time_reply_name}'}}
     cart_time_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
     cart_time_response = requests.put(cart_time_url, headers=strapi_headers, json=cart_time_property)
     cart_time_response.raise_for_status()
-
     text = 'Напишите, пожалуйста, Ваше имя'
     update.message.reply_text(text=text)
-
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
-
-
     return "Выбор после Имя"
 
 
@@ -299,28 +248,23 @@ def choice_from_order_name(update, context, strapi_settings=None):
     past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
                          'sort': 'id:desc',
                          'pagination[pageSize]': 1}
-
     past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
     past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
     past_cart_response.raise_for_status()
     past_cart = past_cart_response.json()['data'][0]
     past_cart_id = past_cart['documentId']
-
     cart_name_property = {'data': {'Name': f'{user_reply_name}'}}
     cart_name_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
     cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
     cart_name_response.raise_for_status()
-
     text = (f'Напишите, пожалуйста, доп. информацию к заказу.\n'
             f'Например:\n'
             f'как с Вами связаться\n'
             f'или пожелания к заказу.')
     update.message.reply_text(text=text)
-
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id-1)
     return "Выбор после коммент_1"
-
 
 
 def choice_from_comment_1(update, context, strapi_settings=None):
@@ -331,38 +275,29 @@ def choice_from_comment_1(update, context, strapi_settings=None):
         info_response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
     info_open_close = info_response.json()
     Open_Close = info_open_close['data']['Open_Close']
     Open_privetstvie = info_open_close['data']['Open_privetstvie']
     Close_privetstvie = info_open_close['data']['Close_privetstvie']
-
     if Open_Close:
-
         user_reply_name = update.message.text
         chat_id_name = update.message.chat_id
         tg_id_for_strapi = f'tg_id_{chat_id_name}'
         past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
                              'sort': 'id:desc',
                              'pagination[pageSize]': 1}
-
         past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
         past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
         past_cart_response.raise_for_status()
         past_cart = past_cart_response.json()['data'][0]
         past_cart_id = past_cart['documentId']
-
         cart_comment_payload =  {'populate[cartitems][populate][product][populate][0]': 'menu_part',
                                  'populate': 'dostavka',}
         cart_comment_property = {'data': {'Comment': f'{user_reply_name}'}}
         cart_comment_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
         cart_comment_response = requests.put(cart_comment_url, headers=strapi_headers, json=cart_comment_property, params=cart_comment_payload)
         cart_comment_response.raise_for_status()
-
         cart = cart_comment_response.json()
-
-
-
         zakaz_nomer_old = cart['data']['id']
         zakaz_nomer_data = cart['data']['zakaznomer']
         zakaz_dennomerint = cart['data']['dennomerint']
@@ -370,12 +305,6 @@ def choice_from_comment_1(update, context, strapi_settings=None):
         zakaz_name = cart['data']['Name']
         zakaz_time = cart['data']['Time']
         zakaz_dostavka = cart['data']['dostavka']['Dostavka']
-
-
-
-
-
-
         total = 0
         head_text = (f'-----------\n'
                      f'Заказ номер :\n'
@@ -385,11 +314,8 @@ def choice_from_comment_1(update, context, strapi_settings=None):
                      f'{zakaz_dostavka} в {zakaz_time}\n'
                      f'{zakaz_comment}\n'
                      f'-----------\n\n'
-
-
                      )
         body_text = ''
-
         for cartitem in cart['data']['cartitems']:
             cartitem_id = cartitem['documentId']
             edin_cis_menu_part = cartitem['product']['menu_part']['Edinstvennoe_cislo']
@@ -403,29 +329,22 @@ def choice_from_comment_1(update, context, strapi_settings=None):
                             f'кол-во : {quantity}\n'
                             f'подитог : {pre_total} руб.\n\n')
             body_text = body_text + text_product
-
         footer_text = (f'-----------\n\n'
                        f'Итого : {total} руб.')
         cart_description = head_text + body_text + footer_text
-
         update.message.reply_text(text=cart_description)
-
         text1 = (f'👆 перешлите, пожалуйста, это сообщение в чат.\n'
                  f'\n'
                  f'Спасибо за Ваш заказ!\n'
                  f'Ваша Ладушка!💕')
         update.message.reply_text(text=text1)
-
         text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
         update.message.reply_text(text=text2)
-
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
         context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
         return ""
-
     else:
         update.message.reply_text(Close_privetstvie)
-
 
 
 def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None):
@@ -440,16 +359,11 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
         info_response.raise_for_status()
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
     info_open_close = info_response.json()
     Open_Close = info_open_close['data']['Open_Close']
     Open_privetstvie = info_open_close['data']['Open_privetstvie']
     Close_privetstvie = info_open_close['data']['Close_privetstvie']
-
-    print('info_open_close', info_open_close)
-
     if Open_Close:
-
         try:
             payload =  {'populate[cartitems][populate][product][populate][0]': 'menu_part',
                         'populate': 'dostavka',}
@@ -460,10 +374,6 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
             logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
         cart = response.json()
-
-        pprint(cart)
-
-
         zakaz_nomer_old = cart['data']['id']
         zakaz_nomer_data = cart['data']['zakaznomer']
         zakaz_dennomerint = cart['data']['dennomerint']
@@ -471,7 +381,6 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
         zakaz_name = cart['data']['Name']
         zakaz_time = cart['data']['Time']
         zakaz_dostavka = cart['data']['dostavka']['Dostavka']
-
         total = 0
         head_text = (f'-----------\n'
                      f'Заказ номер :\n'
@@ -479,10 +388,8 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
                      f'-----------\n'
                      f'{zakaz_dostavka}\n'
                      f'-----------\n\n'
-
                      )
         body_text = ''
-
         for cartitem in cart['data']['cartitems']:
             cartitem_id = cartitem['documentId']
             edin_cis_menu_part = cartitem['product']['menu_part']['Edinstvennoe_cislo']
@@ -496,42 +403,31 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
                             f'кол-во : {quantity}\n'
                             f'подитог : {pre_total} руб.\n\n')
             body_text = body_text + text_product
-
         footer_text = (f'-----------\n\n'
                        f'Итого : {total} руб.')
         cart_description = head_text + body_text + footer_text
-
         query.message.reply_text(text=cart_description)
-
         text1 = (f'👆 перешлите, пожалуйста, это сообщение в чат.\n'
                  f'\n'
                  f'Спасибо за Ваш заказ!\n'
                  f'Ваша Ладушка!💕')
         query.message.reply_text(text=text1)
-
         text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
         query.message.reply_text(text=text2)
-
         context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
         context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id - 1)
         return ""
-
     else:
         update.message.reply_text(Close_privetstvie)
-
-
 
 if __name__ == '__main__':
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
     load_dotenv()
-
     strapi_token = os.getenv("STRAPI_TOKEN")
     strapi_host = os.getenv("STRAPI_HOST")
     strapi_port = os.getenv("STRAPI_PORT")
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
-
     try:
         menu_parts_payload = {'sort': 'Sortirovka'}
         menu_parts_url = f'{strapi_host}{strapi_port}/api/menu-parts'
@@ -540,8 +436,6 @@ if __name__ == '__main__':
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     data_menu_parts = menu_parts_response.json()['data']
-
-
     try:
         dostavkas_payload = {'sort': 'Sortirovka'}
         dostavkas_url = f'{strapi_host}{strapi_port}/api/dostavkas'
@@ -550,18 +444,14 @@ if __name__ == '__main__':
     except Exception as err:
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     dostavkas_parts = dostavkas_response.json()['data']
-
     strapi_settings = [strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts]
-
     database_host = os.getenv("REDIS_HOST")
     database_port = os.getenv("REDIS_PORT")
     database_password = os.getenv("REDIS_PASSWORD")
     database_settings = [database_host, database_port, database_password]
-
     get_handle_users_reply = partial(handle_users_reply,
                                      strapi_settings = strapi_settings,
                                      database_settings = database_settings)
-
     token = os.getenv("TELEGRAM_TOKEN")
     updater = Updater(token)
     dispatcher = updater.dispatcher
