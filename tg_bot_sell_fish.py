@@ -196,7 +196,7 @@ def choice_from_dostavka(update, context, strapi_settings=None):
     keyboard = []
 
     da_callback_data = get_callback_data(cart_id=cart_id, action='Da')
-    keyboard.append([InlineKeyboardButton('Добавить время доставки, имя, комментарии', callback_data=da_callback_data)])
+    keyboard.append([InlineKeyboardButton('Добавить время получения, имя, контакты ...', callback_data=da_callback_data)])
 
     net_callback_data = get_callback_data(cart_id=cart_id, action='Net')
     keyboard.append([InlineKeyboardButton('Не добавлять', callback_data=net_callback_data)])
@@ -254,7 +254,7 @@ def choice_from_time(update, context, strapi_settings=None):
     cart_time_response = requests.put(cart_time_url, headers=strapi_headers, json=cart_time_property)
     cart_time_response.raise_for_status()
 
-    text = 'Пришлите, пожалуйста, ваше имя'
+    text = 'Напишите, пожалуйста, Ваше имя'
     update.message.reply_text(text=text)
 
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
@@ -283,7 +283,7 @@ def choice_from_order_name(update, context, strapi_settings=None):
     cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
     cart_name_response.raise_for_status()
 
-    text = 'Напишите, пожалуйста, комм'
+    text = 'Напишите, пожалуйста, комментарии к заказу (пожелания к заказу, как с Вами связаться)'
     update.message.reply_text(text=text)
 
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
