@@ -613,15 +613,30 @@ def f18():
     from datetime import datetime
     import datetime
 
-    date_time_str = datetime.now()
 
-    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S.%f')
-    print('Дата:', date_time_obj.date())
-    print('Время:', date_time_obj.time())
-    print('Дата и время:', date_time_obj)
+    current_time = datetime.datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day=current_time.day
+    date_for_filter = f'{year}-{month}-{day}'
+    print(date_for_filter)
 
 
-    print(date_time_str)
+    print("The attributes of now() are :")
+
+    print("Year :", current_time.year)
+
+    print("Month : ", current_time.month)
+
+    print("Day : ", current_time.day)
+
+    print("Hour : ", current_time.hour)
+
+    print("Minute : ", current_time.minute)
+
+    print("Second :", current_time.second)
+
+    print("Microsecond :", current_time.microsecond)
 
 
 def f19(strapi_settings):
@@ -656,7 +671,37 @@ def f19(strapi_settings):
 
         print()
 
+def f20(strapi_settings):
+    import datetime
+    strapi_host, strapi_port, strapi_headers = strapi_settings
 
+    ##### zakaz_nomer_data - start #####
+    current_time = datetime.datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    date_for_filter = f'{year}-{month}-{day}'
+    date_for_post = f'{day}.{month}.{year}'
+    try:
+        dennomerint_payload = {'filters[updatedAt][gte]': f'{date_for_filter}',
+                               'filters[cartitems][$ne]': 'None',
+                               'pagination[pageSize]': 1}
+        dennomerint_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+        dennomerint_response = requests.get(dennomerint_carts_url, headers=strapi_headers, params=dennomerint_payload)
+        dennomerint_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    dennomerint_cart = dennomerint_response.json()
+
+    if dennomerint_cart['data'] :
+        dennomerint = dennomerint_cart['meta']['pagination']['total']
+        zakaz_nomer_data = f'{date_for_post} : {dennomerint}'
+
+        zakaz_nomer_data_property = {'data': {'zakaznomer': f'{zakaz_nomer_data}'}}
+        zakaz_nomer_data_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}'
+        zakaz_nomer_data_response = requests.put(zakaz_nomer_data_url, headers=strapi_headers, json=zakaz_nomer_data_property)
+        zakaz_nomer_data_response.raise_for_status()
+    ###### zakaz_nomer_data - end #####
 
 if __name__ == '__main__':
     load_dotenv()
@@ -667,5 +712,6 @@ if __name__ == '__main__':
     strapi_headers = {'Authorization': f'Bearer {strapi_token}'}
     strapi_settings = [strapi_host, strapi_port, strapi_headers]
 
-    f19(strapi_settings)
+    f20(strapi_settings)
+
 

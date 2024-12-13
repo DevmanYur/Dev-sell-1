@@ -2,6 +2,7 @@ import os
 import logging
 from functools import partial
 from pprint import pprint
+import datetime
 
 import redis
 import requests
@@ -186,12 +187,39 @@ def choice_from_dostavka(update, context, strapi_settings=None):
 
 
     dostavka_id = order_status
-
-
     dostavka_property = {'data': {'carts': {'connect': [f'{cart_id}']}}}
     dostavka_url = f'{strapi_host}{strapi_port}/api/dostavkas/{dostavka_id}'
     dostavka_response = requests.put(dostavka_url, headers=strapi_headers, json=dostavka_property)
     dostavka_response.raise_for_status()
+
+
+    ##### zakaz_nomer_data - start #####
+    current_time = datetime.datetime.now()
+    year = current_time.year
+    month = current_time.month
+    day = current_time.day
+    date_for_filter = f'{year}-{month}-{day}'
+    date_for_post = f'{day}.{month}.{year}'
+    try:
+        dennomerint_payload = {'filters[updatedAt][gte]': f'{date_for_filter}',
+                               'pagination[pageSize]': 1}
+        dennomerint_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+        dennomerint_response = requests.get(dennomerint_carts_url, headers=strapi_headers, params=dennomerint_payload)
+        dennomerint_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    dennomerint_cart = dennomerint_response.json()
+
+    if dennomerint_cart['data']:
+        dennomerint = dennomerint_cart['meta']['pagination']['total']
+        zakaz_nomer_data = f'{date_for_post} - {dennomerint}'
+
+        zakaz_nomer_data_property = {'data': {'zakaznomer': f'{zakaz_nomer_data}'}}
+        zakaz_nomer_data_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}'
+        zakaz_nomer_data_response = requests.put(zakaz_nomer_data_url, headers=strapi_headers,
+                                                 json=zakaz_nomer_data_property)
+        zakaz_nomer_data_response.raise_for_status()
+    ###### zakaz_nomer_data - end #####
 
     keyboard = []
 
@@ -351,7 +379,7 @@ def choice_from_comment_1(update, context, strapi_settings=None):
         total = 0
         head_text = (f'-----------\n'
                      f'Заказ номер :\n'
-                     f'{zakaz_nomer_old}\n'
+                     f'{zakaz_nomer_data}\n'
                      f'-----------\n'
                      f'{zakaz_name}\n'
                      f'{zakaz_dostavka} в {zakaz_time}\n'
@@ -447,7 +475,7 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
         total = 0
         head_text = (f'-----------\n'
                      f'Заказ номер :\n'
-                     f'{zakaz_nomer_old}\n'
+                     f'{zakaz_nomer_data}\n'
                      f'-----------\n'
                      f'{zakaz_dostavka}\n'
                      f'-----------\n\n'
