@@ -59,9 +59,10 @@ def handle_users_reply(update, context, strapi_settings=None, database_settings 
         'Выбор после Продукта' : partial(choice_from_product, strapi_settings = strapi_settings),
         'Выбор после всего Новинки' : partial(choice_from_new_product, strapi_settings = strapi_settings),
         "Выбор после Имя": partial(choice_from_order_name, strapi_settings = strapi_settings),
-        "Выбор после коммент" : partial(choice_from_comment, strapi_settings = strapi_settings),
+        "Выбор после коммент_1" : partial(choice_from_comment_1, strapi_settings = strapi_settings),
         "Выбор после Доставка" : partial(choice_from_dostavka, strapi_settings = strapi_settings),
         "Выбор после Время": partial(choice_from_time, strapi_settings = strapi_settings),
+        "Выбор после да нет": partial(choice_from_da_net, strapi_settings = strapi_settings),
     }
     state_handler = states_functions[user_state]
     try:
@@ -183,17 +184,48 @@ def choice_from_dostavka(update, context, strapi_settings=None):
     cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
     strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
 
+
     dostavka_id = order_status
-    print(dostavka_id)
+
 
     dostavka_property = {'data': {'carts': {'connect': [f'{cart_id}']}}}
     dostavka_url = f'{strapi_host}{strapi_port}/api/dostavkas/{dostavka_id}'
     dostavka_response = requests.put(dostavka_url, headers=strapi_headers, json=dostavka_property)
     dostavka_response.raise_for_status()
 
+    keyboard = []
+
+    da_callback_data = get_callback_data(cart_id=cart_id, action='Da')
+    keyboard.append([InlineKeyboardButton('Да, добавить', callback_data=da_callback_data)])
+
+    net_callback_data = get_callback_data(cart_id=cart_id, action='Net')
+    keyboard.append([InlineKeyboardButton('Нет', callback_data=net_callback_data)])
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    menu_text = 'Добавить имя, время доставки, комментарии?'
+    context.bot.send_message(chat_id=query.message.chat_id, text=menu_text, reply_markup=reply_markup)
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+
+    return "Выбор после да нет"
+
+def choice_from_da_net(update, context, strapi_settings=None):
+    user_reply = update.callback_query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+
+    if action == 'Da':
+        return get_coomment_da(update, context, strapi_settings=strapi_settings)
+    if action == 'Net':
+        return get_coomment_net_choice_from_comment_2(update, context, strapi_settings=strapi_settings)
 
 
 
+def get_coomment_da(update, context, strapi_settings=None):
+    query = update.callback_query
+    query.answer()
+    user_reply = query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
 
     text = 'Напишите, пожалуйста, время к которому подготовить заказ'
     context.bot.send_message(chat_id=query.message.chat_id, text=text)
@@ -256,9 +288,11 @@ def choice_from_order_name(update, context, strapi_settings=None):
 
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id-1)
-    return "Выбор после коммент"
+    return "Выбор после коммент_1"
 
-def choice_from_comment(update, context, strapi_settings=None):
+
+
+def choice_from_comment_1(update, context, strapi_settings=None):
     strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
     try:
         products_url = f'{strapi_host}{strapi_port}/api/info'
@@ -337,6 +371,87 @@ def choice_from_comment(update, context, strapi_settings=None):
 
     else:
         update.message.reply_text(Close_privetstvie)
+
+
+
+def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None):
+    query = update.callback_query
+    query.answer()
+    user_reply = query.data
+    cart_id, product_id, action, count, cartitem_id, order_status, menu_part_id = user_reply.split('&')
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
+    try:
+        products_url = f'{strapi_host}{strapi_port}/api/info'
+        info_response = requests.get(products_url, headers=strapi_headers)
+        info_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    info_open_close = info_response.json()
+    Open_Close = info_open_close['data']['Open_Close']
+    Open_privetstvie = info_open_close['data']['Open_privetstvie']
+    Close_privetstvie = info_open_close['data']['Close_privetstvie']
+
+    print('info_open_close', info_open_close)
+
+    if Open_Close:
+
+        try:
+            payload = {'populate[cartitems][populate][0]': 'product'}
+            carts_url = f'{strapi_host}{strapi_port}/api/carts/{cart_id}/'
+            response = requests.get(carts_url, headers=strapi_headers, params=payload)
+            response.raise_for_status()
+        except Exception as err:
+            logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+        cart = response.json()
+
+        pprint(cart)
+
+        zakaz_nomer = cart['data']['id']
+        total = 0
+        head_text = (f'-----------\n'
+                     f'Заказ номер - *** {zakaz_nomer} ***\n'
+                     f'-----------\n')
+        body_text = ''
+
+        for cartitem in cart['data']['cartitems']:
+            cartitem_id = cartitem['documentId']
+            title = cartitem['product']['title']
+            price = cartitem['product']['price']
+            quantity = cartitem['quantity']
+            pre_total = price * quantity
+            total = total + pre_total
+            text_product = (f'● {title}\n'
+                            f'Цена за ед.: {price}\n'
+                            f'Кол-во: {quantity}\n'
+                            f'Подитог: {pre_total}\n\n')
+            body_text = body_text + text_product
+
+        footer_text = (f'-----------\n\n'
+                       f'Итого {total}')
+        cart_description = head_text + body_text + footer_text
+
+        query.message.reply_text(text=cart_description)
+
+        text1 = (f'Скопируйте сообщение, которое выше\n'
+                 f'и отправьте его в чат\n'
+                 f'\n'
+                 f'Спасибо!\n'
+                 f'Ваша Ладушка!💕')
+        query.message.reply_text(text=text1)
+
+        text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
+        query.message.reply_text(text=text2)
+
+        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id - 1)
+        return ""
+
+    else:
+        update.message.reply_text(Close_privetstvie)
+
+
 
 if __name__ == '__main__':
     logging.basicConfig(
