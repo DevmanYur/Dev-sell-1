@@ -109,19 +109,23 @@ def get_product(update, context, strapi_settings=None):
 
 
     menu_part_edinstvennoe_cislo = product['data']['menu_part']['Edinstvennoe_cislo']
+    menu_part_edinstvennoe_emoji = product['data']['menu_part']['Emoji']
     title = product['data']['title']
     price = product['data']['price']
+    porciya = product['data']['Porciya']
 
 
     description = product['data']['description']
 
-    text = (f'{menu_part_edinstvennoe_cislo} - {title}\n'
+    text = (f'{menu_part_edinstvennoe_cislo}\n'
+            f'------------------------------------\n'
+            f'{title}\n'
             f'\n'
-            f'Цена {price}\n'
-            f'\n'
-            f'{description}\n'
-            f'\n'
-            f'в корзине {now_quantity}')
+            f'цена : {price}р.\n'
+            f'описание : {description}\n'
+            f'порция : {porciya}\n'
+            f'------------------------------------\n'
+            f'в корзине : {now_quantity} шт.')
 
     count_kg = [1 ,2 ,3]
 
