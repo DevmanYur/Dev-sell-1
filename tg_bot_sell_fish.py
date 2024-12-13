@@ -283,7 +283,10 @@ def choice_from_order_name(update, context, strapi_settings=None):
     cart_name_response = requests.put(cart_name_url, headers=strapi_headers, json=cart_name_property)
     cart_name_response.raise_for_status()
 
-    text = 'Напишите, пожалуйста как с Вами связаться или пожелания к заказу'
+    text = (f'Напишите, пожалуйста, доп. информацию к заказу.\n'
+            f'Например:\n'
+            f'как с Вами связаться\n'
+            f'или пожелания к заказу.')
     update.message.reply_text(text=text)
 
     context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
@@ -379,9 +382,9 @@ def choice_from_comment_1(update, context, strapi_settings=None):
 
         update.message.reply_text(text=cart_description)
 
-        text1 = (f'Перешлите, пожалуйста, это 👆  сообщение в чат 🗪\n'
+        text1 = (f'👆 перешлите, пожалуйста, это сообщение в чат.\n'
                  f'\n'
-                 f'Спасибо за заказ!\n'
+                 f'Спасибо за Ваш заказ!\n'
                  f'Ваша Ладушка!💕')
         update.message.reply_text(text=text1)
 
@@ -432,11 +435,24 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
 
         pprint(cart)
 
-        zakaz_nomer = cart['data']['id']
+
+        zakaz_nomer_old = cart['data']['id']
+        zakaz_nomer_data = cart['data']['zakaznomer']
+        zakaz_dennomerint = cart['data']['dennomerint']
+        zakaz_comment = cart['data']['Comment']
+        zakaz_name = cart['data']['Name']
+        zakaz_time = cart['data']['Time']
+        zakaz_dostavka = cart['data']['dostavka']['Dostavka']
+
         total = 0
         head_text = (f'-----------\n'
-                     f'Заказ номер - *** {zakaz_nomer} ***\n'
-                     f'-----------\n')
+                     f'Заказ номер :\n'
+                     f'{zakaz_nomer_old}\n'
+                     f'-----------\n'
+                     f'{zakaz_dostavka}\n'
+                     f'-----------\n\n'
+
+                     )
         body_text = ''
 
         for cartitem in cart['data']['cartitems']:
@@ -454,15 +470,14 @@ def get_coomment_net_choice_from_comment_2(update, context, strapi_settings=None
             body_text = body_text + text_product
 
         footer_text = (f'-----------\n\n'
-                       f'Итого {total}')
+                       f'Итого : {total} руб.')
         cart_description = head_text + body_text + footer_text
 
         query.message.reply_text(text=cart_description)
 
-        text1 = (f'Скопируйте сообщение, которое выше\n'
-                 f'и отправьте его в чат\n'
+        text1 = (f'👆 перешлите, пожалуйста, это сообщение в чат.\n'
                  f'\n'
-                 f'Спасибо!\n'
+                 f'Спасибо за Ваш заказ!\n'
                  f'Ваша Ладушка!💕')
         query.message.reply_text(text=text1)
 
