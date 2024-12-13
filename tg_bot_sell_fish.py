@@ -196,14 +196,14 @@ def choice_from_dostavka(update, context, strapi_settings=None):
     keyboard = []
 
     da_callback_data = get_callback_data(cart_id=cart_id, action='Da')
-    keyboard.append([InlineKeyboardButton('Да, добавить', callback_data=da_callback_data)])
+    keyboard.append([InlineKeyboardButton('Добавить время доставки, имя, комментарии', callback_data=da_callback_data)])
 
     net_callback_data = get_callback_data(cart_id=cart_id, action='Net')
-    keyboard.append([InlineKeyboardButton('Нет', callback_data=net_callback_data)])
+    keyboard.append([InlineKeyboardButton('Не добавлять', callback_data=net_callback_data)])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    menu_text = 'Добавить имя, время доставки, комментарии?'
+    menu_text = '💬'
     context.bot.send_message(chat_id=query.message.chat_id, text=menu_text, reply_markup=reply_markup)
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
