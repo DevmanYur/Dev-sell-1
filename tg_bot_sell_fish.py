@@ -259,67 +259,84 @@ def choice_from_order_name(update, context, strapi_settings=None):
     return "Выбор после коммент"
 
 def choice_from_comment(update, context, strapi_settings=None):
+    strapi_host, strapi_port, strapi_headers, data_menu_parts, dostavkas_parts = strapi_settings
+    try:
+        products_url = f'{strapi_host}{strapi_port}/api/info'
+        info_response = requests.get(products_url, headers=strapi_headers)
+        info_response.raise_for_status()
+    except Exception as err:
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    user_reply_name = update.message.text
-    chat_id_name = update.message.chat_id
-    tg_id_for_strapi = f'tg_id_{chat_id_name}'
-    past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
-                         'sort': 'id:desc',
-                         'pagination[pageSize]': 1}
+    info_open_close = info_response.json()
+    Open_Close = info_open_close['data']['Open_Close']
+    Open_privetstvie = info_open_close['data']['Open_privetstvie']
+    Close_privetstvie = info_open_close['data']['Close_privetstvie']
 
-    past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
-    past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
-    past_cart_response.raise_for_status()
-    past_cart = past_cart_response.json()['data'][0]
-    past_cart_id = past_cart['documentId']
+    if Open_Close:
 
-    cart_comment_payload = {'populate[cartitems][populate][0]': 'product'}
-    cart_comment_property = {'data': {'Comment': f'{user_reply_name}'}}
-    cart_comment_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
-    cart_comment_response = requests.put(cart_comment_url, headers=strapi_headers, json=cart_comment_property, params=cart_comment_payload)
-    cart_comment_response.raise_for_status()
+        user_reply_name = update.message.text
+        chat_id_name = update.message.chat_id
+        tg_id_for_strapi = f'tg_id_{chat_id_name}'
+        past_cart_payload = {'filters[tg_id]': f'{tg_id_for_strapi}',
+                             'sort': 'id:desc',
+                             'pagination[pageSize]': 1}
 
-    cart = cart_comment_response.json()
+        past_carts_url = f'{strapi_host}{strapi_port}/api/carts'
+        past_cart_response = requests.get(past_carts_url, headers=strapi_headers, params=past_cart_payload)
+        past_cart_response.raise_for_status()
+        past_cart = past_cart_response.json()['data'][0]
+        past_cart_id = past_cart['documentId']
 
-    zakaz_nomer = cart['data']['id']
-    total = 0
-    head_text = (f'-----------\n'
-                 f'Заказ номер - *** {zakaz_nomer} ***\n'
-                 f'-----------\n')
-    body_text = ''
+        cart_comment_payload = {'populate[cartitems][populate][0]': 'product'}
+        cart_comment_property = {'data': {'Comment': f'{user_reply_name}'}}
+        cart_comment_url = f'{strapi_host}{strapi_port}/api/carts/{past_cart_id}'
+        cart_comment_response = requests.put(cart_comment_url, headers=strapi_headers, json=cart_comment_property, params=cart_comment_payload)
+        cart_comment_response.raise_for_status()
 
-    for cartitem in cart['data']['cartitems']:
-        cartitem_id = cartitem['documentId']
-        title = cartitem['product']['title']
-        price = cartitem['product']['price']
-        quantity = cartitem['quantity']
-        pre_total = price * quantity
-        total = total + pre_total
-        text_product = (f'● {title}\n'
-                        f'Цена за ед.: {price}\n'
-                        f'Кол-во: {quantity}\n'
-                        f'Подитог: {pre_total}\n\n')
-        body_text = body_text + text_product
+        cart = cart_comment_response.json()
 
-    footer_text = (f'-----------\n\n'
-                   f'Итого {total}')
-    cart_description = head_text + body_text + footer_text
+        zakaz_nomer = cart['data']['id']
+        total = 0
+        head_text = (f'-----------\n'
+                     f'Заказ номер - *** {zakaz_nomer} ***\n'
+                     f'-----------\n')
+        body_text = ''
 
-    update.message.reply_text(text=cart_description)
+        for cartitem in cart['data']['cartitems']:
+            cartitem_id = cartitem['documentId']
+            title = cartitem['product']['title']
+            price = cartitem['product']['price']
+            quantity = cartitem['quantity']
+            pre_total = price * quantity
+            total = total + pre_total
+            text_product = (f'● {title}\n'
+                            f'Цена за ед.: {price}\n'
+                            f'Кол-во: {quantity}\n'
+                            f'Подитог: {pre_total}\n\n')
+            body_text = body_text + text_product
 
-    text1 = (f'Скопируйте сообщение, которое выше\n'
-             f'и отправьте его в чат\n'
-             f'\n'
-             f'Спасибо!\n'
-             f'Ваша Ладушка!💕')
-    update.message.reply_text(text=text1)
+        footer_text = (f'-----------\n\n'
+                       f'Итого {total}')
+        cart_description = head_text + body_text + footer_text
 
-    text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
-    update.message.reply_text(text=text2)
+        update.message.reply_text(text=cart_description)
 
-    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
-    context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
-    return ""
+        text1 = (f'Скопируйте сообщение, которое выше\n'
+                 f'и отправьте его в чат\n'
+                 f'\n'
+                 f'Спасибо!\n'
+                 f'Ваша Ладушка!💕')
+        update.message.reply_text(text=text1)
+
+        text2 = (f'Чтобы оформить новый заказ, нажмите /start ')
+        update.message.reply_text(text=text2)
+
+        context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+        context.bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id - 1)
+        return ""
+
+    else:
+        update.message.reply_text(Close_privetstvie)
 
 if __name__ == '__main__':
     logging.basicConfig(
